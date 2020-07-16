@@ -10,6 +10,7 @@ const int height = 600;
 const int width = 800;
 bool gFullScreen = false;
 GLFWwindow* pWindow ;
+bool gWireframe;
 
 // Shaders
 const GLchar* vertexShaderSrc =
@@ -25,7 +26,7 @@ const GLchar* fragmentShaderSrc =
 "out vec4 frag_color;"
 "void main()"
 "{"
-"	frag_color=vec4(0.2f,0.34f,0.69f,1.0f);"
+"	frag_color=vec4(0.2f,0.8f,0.3f,1.0f);"
 "}";
 
 // Function prototypes
@@ -43,15 +44,23 @@ int main()
 	}
 
 	// 1. Set up an array of vertices with position and color for a triangle
-	GLfloat vertices[] = {
-		//parents		
-		0.0f,0.5f,0.0f, 
-		0.5f,-0.5f,0.0f, 
+	GLfloat vertices[] = 
+	{
+		//triangle 1	
+		-0.5f,0.5f,0.0f,
+		0.5f,-0.5f,0.0f,
 		-0.5f,-0.5f,0.0f,
+		0.5f,0.5f,0.0f
+	};
+
+	GLuint indices[]=
+	{
+		0,2,1,//triangle1
+		1,3,0 //triangle2
 	};
 
 	// 2. Set up buffer on the GPU
-	GLuint vbo, vao;
+	GLuint vbo, ibo, vao;
 
 	glGenBuffers(1, &vbo);// Generate an empty vertex buffer on the GPU
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);// "bind" or set as the current buffer we are working with
@@ -65,6 +74,10 @@ int main()
 	// Position attribute, identified as "0"
 	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
 	glEnableVertexAttribArray(0);//Enable Attribute "0"
+
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// 3. Create vertex shader
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
@@ -116,7 +129,7 @@ int main()
 
 		glUseProgram(shaderProgram);
 		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		
 		glfwSwapBuffers(pWindow);
@@ -175,8 +188,16 @@ bool initOpenGL()
 
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-	if (key == GLFW_KEY_ESCAPE || action == GLFW_PRESS)
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window,GL_TRUE);
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+		gWireframe = !gWireframe;
+	if (gWireframe)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
+	}
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 {
