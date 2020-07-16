@@ -1,15 +1,17 @@
 #include <iostream>
 #include <sstream>
 #define	GLEW_STATIC
-#include "GL/glew.h"
+#include "GL/glew.h"// Important - this header must come before glfw3 header
 #include "GLFW/glfw3.h"
 
+// Global Variables
 const char* title = "OpenGL Starters";
 const int height = 600;
 const int width = 800;
 bool gFullScreen = false;
 GLFWwindow* pWindow ;
 
+// Shaders
 const GLchar* vertexShaderSrc =
 "#version 330 core\n"
 "layout(location = 0) in vec3 pos;"// this 0 is linked to glVertexAttribPointer(0,..)
@@ -23,10 +25,12 @@ const GLchar* fragmentShaderSrc =
 "out vec4 frag_color;"
 "void main()"
 "{"
-"	frag_color=vec4(0.35f,0.96f,0.3f,1.0f);"
+"	frag_color=vec4(0.2f,0.34f,0.69f,1.0f);"
 "}";
 
+// Function prototypes
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode);
+void glfw_onFramebufferSize(GLFWwindow* window, int width, int height);
 void showFPS(GLFWwindow* window);
 bool initOpenGL();
 
@@ -38,31 +42,31 @@ int main()
 		return -1;
 	}
 
+	// 1. Set up an array of vertices with position and color for a triangle
 	GLfloat vertices[] = {
-		0.0f,0.5f,0.0f, //top vertics
-		0.5f,-0.5f,0.0f, //right vertices
-		-0.5f,-0.5f,0.0f//left vertices
+		//parents		
+		0.0f,0.5f,0.0f, 
+		0.5f,-0.5f,0.0f, 
+		-0.5f,-0.5f,0.0f,
 	};
 
+	// 2. Set up buffer on the GPU
 	GLuint vbo, vao;
 
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glGenBuffers(1, &vbo);// Generate an empty vertex buffer on the GPU
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);// "bind" or set as the current buffer we are working with
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);// copy the data from CPU to GPU
 
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glVertexAttribPointer(
-		0,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		NULL);
+	// The vertex array object (VAO) is a little descriptor that defines which data from vertex buffer objects should be used as input 
+	// variables to vertex shaders.
+	glGenVertexArrays(1, &vao);// Tell OpenGL to create new Vertex Array Object
+	glBindVertexArray(vao);// Make it the current one
 	
-	glEnableVertexAttribArray(0);
+	// Position attribute, identified as "0"
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
+	glEnableVertexAttribArray(0);//Enable Attribute "0"
 
+	// 3. Create vertex shader
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs, 1, &vertexShaderSrc, NULL);
 	glCompileShader(vs);
@@ -76,6 +80,7 @@ int main()
 		std::cout << "Error!Vertex shader failed to compile" << infoLog << std::endl;
 	}
 
+	// 4. Create fragment shader
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fs, 1, &fragmentShaderSrc, NULL);
 	glCompileShader(fs);
@@ -87,6 +92,7 @@ int main()
 		std::cout << "Error! Fragment Shader failed to compile" << infoLog << std::endl;
 	}
 
+	// 5. Create shader program and link shaders to program
 	GLint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vs);
 	glAttachShader(shaderProgram, fs);
@@ -171,6 +177,10 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE || action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window,GL_TRUE);
+}
+void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
 }
 
 void showFPS(GLFWwindow* window)
