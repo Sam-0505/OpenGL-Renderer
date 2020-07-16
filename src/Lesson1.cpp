@@ -48,18 +48,29 @@ int main()
 
 	// 1. Set up an array of vertices with position and color for a triangle
 	GLfloat vertices[] = {
-		//parents		//color
-		0.0f,0.5f,0.0f, 1.0f,0.0f,0.0f,
-		0.5f,-0.5f,0.0f, 0.0f,1.0f,0.0f,
-		-0.5f,-0.5f,0.0f,0.0f,0.0f,1.0f
+		//parents		
+		0.0f,0.5f,0.0f, 
+		0.5f,-0.5f,0.0f,
+		-0.5f,-0.5f,0.0f
 	};
 
+	GLfloat vert_color[]
+	{
+		//color
+		1.0f,0.0f,0.0f,
+		 0.0f,1.0f,0.0f,
+		0.0f,0.0f,1.0f
+	};
 	// 2. Set up buffer on the GPU
-	GLuint vbo, vao;
+	GLuint vbo, vbo2, vao;
 
 	glGenBuffers(1, &vbo);// Generate an empty vertex buffer on the GPU
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);// "bind" or set as the current buffer we are working with
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);// copy the data from CPU to GPU
+
+	glGenBuffers(1, &vbo2);// Generate an empty vertex buffer on the GPU
+	glBindBuffer(GL_ARRAY_BUFFER, vbo2);// "bind" or set as the current buffer we are working with
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vert_color), vert_color, GL_STATIC_DRAW);// copy the data from CPU to GPU
 
 	// The vertex array object (VAO) is a little descriptor that defines which data from vertex buffer objects should be used as input 
 	// variables to vertex shaders.
@@ -67,11 +78,13 @@ int main()
 	glBindVertexArray(vao);// Make it the current one
 	
 	// Position attribute, identified as "0"
-	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, sizeof(GLfloat) * 6,NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);//to make it the current buffer again
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, sizeof(GLfloat) * 3,NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
 	glEnableVertexAttribArray(0);//Enable Attribute "0"
 
 	// Color attribute, identified as "1"
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*6, (GLvoid*)(sizeof(GLfloat)*3));
+	glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, NULL);
 	glEnableVertexAttribArray(1);//Enable Attribute "1"
 
 	// 3. Create vertex shader
