@@ -15,17 +15,21 @@ GLFWwindow* pWindow ;
 const GLchar* vertexShaderSrc =
 "#version 330 core\n"
 "layout(location = 0) in vec3 pos;"// this 0 is linked to glVertexAttribPointer(0,..)
+"layout(location = 1) in vec3 color;"
+"out vec3 vert_color;"
 "void main()"
 "{"
+"	vert_color=color;"
 "	gl_Position=vec4(pos.x,pos.y,pos.z,1.0);"
 "}";
  
 const GLchar* fragmentShaderSrc =
 "#version 330 core\n"
+"in vec3 vert_color;"
 "out vec4 frag_color;"
 "void main()"
 "{"
-"	frag_color=vec4(0.2f,0.34f,0.69f,1.0f);"
+"	frag_color=vec4(vert_color,1.0f);"
 "}";
 
 // Function prototypes
@@ -44,10 +48,10 @@ int main()
 
 	// 1. Set up an array of vertices with position and color for a triangle
 	GLfloat vertices[] = {
-		//parents		
-		0.0f,0.5f,0.0f, 
-		0.5f,-0.5f,0.0f, 
-		-0.5f,-0.5f,0.0f,
+		//parents		//color
+		0.0f,0.5f,0.0f, 1.0f,0.0f,0.0f,
+		0.5f,-0.5f,0.0f, 0.0f,1.0f,0.0f,
+		-0.5f,-0.5f,0.0f,0.0f,0.0f,1.0f
 	};
 
 	// 2. Set up buffer on the GPU
@@ -63,8 +67,12 @@ int main()
 	glBindVertexArray(vao);// Make it the current one
 	
 	// Position attribute, identified as "0"
-	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, sizeof(GLfloat) * 6,NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
 	glEnableVertexAttribArray(0);//Enable Attribute "0"
+
+	// Color attribute, identified as "1"
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*6, (GLvoid*)(sizeof(GLfloat)*3));
+	glEnableVertexAttribArray(1);//Enable Attribute "1"
 
 	// 3. Create vertex shader
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
