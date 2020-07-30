@@ -1,9 +1,10 @@
 #ifndef SHADER_PROGRAM_H
 #define SHADER_PROGRAM_H
+#include <string>
 #include <map>
 #include "GL/glew.h"
 #include "glm/glm.hpp"
-#include <string>;
+
 using std::string;
 
 class ShaderProgram
@@ -25,10 +26,12 @@ public:
 	void setUniform(const GLchar* name, const glm::vec2& v);
 	void setUniform(const GLchar* name, const glm::vec3& v);
 	void setUniform(const GLchar* name, const glm::vec4& v);
+	GLuint getProgram()const;
 
 private:
 	string fileToString(const string& filename);    
-	void checkCompileErrors(GLuint shader,ShaderType type);
+	void checkCompileErrors(GLuint shader, ShaderType type);
+
 	GLint getUniformLocations(const GLchar* name);
 
 	GLuint mHandle;

@@ -1,26 +1,7 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(453,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
   Lesson1.cpp
-D:\OpenGL\Project1\src\ShaderProgram.h(6,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-D:\OpenGL\Project1\src\Lesson1.cpp(83,16): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+D:\OpenGL\Project1\src\Lesson1.cpp(107,16): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
   ShaderProgram.cpp
-D:\OpenGL\Project1\src\ShaderProgram.h(6,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  Texture2D.cpp
   Generating Code...
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4286: symbol '___glewAttachShader' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewCompileShader' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewCreateProgram' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewCreateShader' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewDeleteProgram' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewDeleteShader' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewGetProgramInfoLog' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewGetProgramiv' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewGetUniformLocation' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewLinkProgram' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewShaderSource' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewUniform2f' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewUniform3f' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewUniform4f' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-LINK : warning LNK4286: symbol '___glewUseProgram' defined in 'glew32s.lib(glew.obj)' is imported by 'ShaderProgram.obj'
-glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'D:\OpenGL\Project1\bin\vc120.pdb'; linking object as if no debug info
   Project1.vcxproj -> D:\OpenGL\Project1\.\bin\Project1.exe
