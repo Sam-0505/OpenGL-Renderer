@@ -3,19 +3,21 @@
 #define	GLEW_STATIC
 #include "GL/glew.h"// Important - this header must come before glfw3 header
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
 #include"Texture2D.h"
 
 // Global Variables
 const char* title = "OpenGL Starters";
-const int height = 600;
-const int width = 800;
+int pheight = 768;
+int pwidth = 1024;
 bool gFullScreen = false;
 GLFWwindow* pWindow ;
 bool gWireframe;
 
 //Shaders
-const std::string texture1 = "D:/OpenGL/Project1/textures/airplane.png";
+//const std::string texture1 = "D:/OpenGL/Project1/textures/airplane.png";
 const std::string texture2 = "D:/OpenGL/Project1/textures/crate.jpg";
 
 // Function prototypes
@@ -38,21 +40,66 @@ int main()
 	// Set up our quad
 
 	// 1. Set up an array of vertices for a quad (2 triangls) with an index buffer data
-	GLfloat vertices[] =
-	{
-		//triangle 1	//tex_coords
-		-0.5f,0.5f,0.0f,0.0f,1.0f,//topleft
-		0.5f,-0.5f,0.0f,1.0f,0.0f,//bottomright
-		-0.5f,-0.5f,0.0f,0.0f,0.0f,//bottomleft
-		0.5f,0.5f,0.0f,1.0f,1.0f//topright
+	GLfloat vertices[] = {
+		// position		 // tex coords
+
+	   // front face
+	   -1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+		1.0f,  1.0f,  1.0f, 1.0f, 1.0f,
+	   -1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+	   -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,
+		1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+
+		// back face
+		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
+		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,
+		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
+
+		 // left face
+		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
+		 -1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+		 -1.0f,  1.0f,  1.0f, 1.0f, 1.0f,
+		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
+		 -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
+		 -1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
+
+		 // right face
+		  1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
+		  1.0f,  1.0f, -1.0f, 1.0f, 1.0f,
+		  1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
+		  1.0f, -1.0f,  1.0f, 0.0f, 0.0f,
+		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
+
+		  // top face
+		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
+		  1.0f,  1.0f,  1.0f, 1.0f, 0.0f,
+		  1.0f,  1.0f, -1.0f, 1.0f, 1.0f,
+		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
+		 -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
+		  1.0f,  1.0f,  1.0f, 1.0f, 0.0f,
+
+		  // bottom face
+		 -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
+		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
+		  1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
+		 -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
+		 -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
+		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
 	};
 
+	// Cube position
+	glm::vec3 cubePos = glm::vec3(0.0f, 0.0f, -5.0f);
 	// 2. Set up buffers on the GPU
-	GLuint indices[]=
+	/*GLuint indices[]=
 	{
   		0,2,1,//triangle1
 		1,3,0 //triangle2
-	};
+	};*/
 
 	// 2. Set up buffer on the GPU
 	GLuint vbo, ibo, vao;
@@ -73,35 +120,73 @@ int main()
 	// Texture Coord attribute, identified as "1"
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5,(GLvoid*)(sizeof(GLfloat) * 3));
 	glEnableVertexAttribArray(1);
-	 
+	
+	/*
 	// Set up index buffer
 	glGenBuffers(1, &ibo);	// Create buffer space on the GPU for the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	*/
 
 	ShaderProgram shaderProgram;
 	shaderProgram.loadShaders("basic.vert","basic.frag");
 
-	Texture2D texture2D1;
-	texture2D1.loadTexture(texture1, true);
+	//Texture2D texture2D1;
+	//texture2D1.loadTexture(texture1, true);
 
 	Texture2D texture2D2;
 	texture2D2.loadTexture(texture2, true);
+
+	double lastTime = glfwGetTime();
+	float cubeAngle = 0.0f;
 	
 	while (!glfwWindowShouldClose(pWindow))
 	{
 		showFPS(pWindow);
+
+		double currentTime = glfwGetTime();
+		double deltaTime = currentTime - lastTime;
 		
 		glfwPollEvents();
 		
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		texture2D1.bind(0);
+		//texture2D1.bind(0);
 		texture2D2.bind(1);
 
+		glm::mat4 model, view, projection;
+
+		// Update the cube position and orientation.  Rotate first then translate
+		cubeAngle += (float)(deltaTime * 50.0f);
+		if (cubeAngle >= 360.0f) cubeAngle = 0.0f;
+
+		// Rotates around the cube center
+		model = glm::translate(model, cubePos) * glm::rotate(model, glm::radians(cubeAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		// Uncomment this line and comment the one above to flip the transformation of the cube.  Watch what happens!
+		// Rotates around??
+		//model = glm::rotate(model, glm::radians(gCubeAngle), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::translate(model, cubePos);
+
+		glm::vec3 camPos(0.0f, 0.0f, 0.0f);
+		glm::vec3 targetPos(0.0f, 0.0f, -1.0f);
+		glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+		// Create the View matrix
+		view = glm::lookAt(camPos, camPos + targetPos, up);
+
+		// Create the projection matrix
+		projection = glm::perspective(glm::radians(45.0f), (float)pwidth / (float)pheight, 0.1f, 100.0f);
+
+		// Must be called BEFORE setting uniforms because setting uniforms is done
+		// on the currently active shader program.
 		shaderProgram.use();
 
-		glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture1"), 0);
+		// Pass the matrices to the shader
+		shaderProgram.setUniform("model", model);
+		shaderProgram.setUniform("view", view);
+		shaderProgram.setUniform("projection", projection);
+
+		//glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture1"), 0);
 		glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture2"), 1);
 
 		GLfloat time = glfwGetTime();
@@ -113,10 +198,13 @@ int main()
 		shaderProgram.setUniform("vertColor", glm::vec4(0.0f, 0.0f, blueColor, 1.0f));
 
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		
 		glfwSwapBuffers(pWindow); 
+
+		lastTime = currentTime;
 	}
 	glDeleteVertexArrays(1, &vao);
 	glDeleteVertexArrays(1, &vbo);
@@ -147,7 +235,7 @@ bool initOpenGL()
 	}
 	else
 	{
-		pWindow = glfwCreateWindow(width, height, title, NULL, NULL);
+		pWindow = glfwCreateWindow(pwidth, pheight, title, NULL, NULL);
 	}
 	if (pWindow == NULL)
 	{
@@ -184,6 +272,8 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 }
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 {
+	pwidth = width;
+	pheight = height;
 	glViewport(0, 0, width, height);
 }
 
