@@ -6,7 +6,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
-#include"Texture2D.h"
+#include "Texture2D.h"
+#include "Camera.h"
 
 // Global Variables
 const char* title = "OpenGL Starters";
@@ -16,13 +17,21 @@ bool gFullScreen = false;
 GLFWwindow* pWindow ;
 bool gWireframe;
 
+const float MOUSE_SENSITIVITY = 0.25f;
+float gRadius = 10.0f;
+float gYaw = 0.0f;
+float gPitch = 0.0f;
+
 //Shaders
-//const std::string texture1 = "D:/OpenGL/Project1/textures/airplane.png";
-const std::string texture2 = "D:/OpenGL/Project1/textures/crate.jpg";
+//const std::string texture2 = "D:/OpenGL/Project1/textures/airplane.png";
+const std::string texture1 = "D:/OpenGL/Project1/textures/crate.jpg";
+const std::string floorTexture = "D:/OpenGL/Project1/textures/grid.jpg";
 
 // Function prototypes
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode);
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height);
+void glfw_onMouseMove(GLFWwindow* window, double posX, double posY);
+void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff);
 void showFPS(GLFWwindow* window);
 bool initOpenGL();
 
@@ -93,7 +102,8 @@ int main()
 	};
 
 	// Cube position
-	glm::vec3 cubePos = glm::vec3(0.0f, 0.0f, -5.0f);
+	glm::vec3 cubePos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 floorPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	// 2. Set up buffers on the GPU
 	/*GLuint indices[]=
 	{
@@ -131,11 +141,16 @@ int main()
 	ShaderProgram shaderProgram;
 	shaderProgram.loadShaders("basic.vert","basic.frag");
 
-	//Texture2D texture2D1;
-	//texture2D1.loadTexture(texture1, true);
+	Texture2D texture2D1;
+	texture2D1.loadTexture(texture1, true);
 
-	Texture2D texture2D2;
-	texture2D2.loadTexture(texture2, true);
+	//Texture2D texture2D2;
+	//texture2D2.loadTexture(texture2, true);
+
+	Texture2D floorTexture2D;
+	floorTexture2D.loadTexture(floorTexture, true);
+
+	OrbitCamera orbitCamera;
 
 	double lastTime = glfwGetTime();
 	float cubeAngle = 0.0f;
@@ -149,16 +164,16 @@ int main()
 		
 		glfwPollEvents();
 		
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//texture2D1.bind(0);
-		texture2D2.bind(1);
+		texture2D1.bind(0);
+		//texture2D2.bind(1);
 
 		glm::mat4 model, view, projection;
 
 		// Update the cube position and orientation.  Rotate first then translate
-		cubeAngle += (float)(deltaTime * 50.0f);
-		if (cubeAngle >= 360.0f) cubeAngle = 0.0f;
+		//cubeAngle += (float)(deltaTime * 50.0f);
+		//if (cubeAngle >= 360.0f) cubeAngle = 0.0f;
 
 		// Rotates around the cube center
 		model = glm::translate(model, cubePos) * glm::rotate(model, glm::radians(cubeAngle), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -171,8 +186,12 @@ int main()
 		glm::vec3 targetPos(0.0f, 0.0f, -1.0f);
 		glm::vec3 up(0.0f, 1.0f, 0.0f);
 
+		orbitCamera.setLookAt(cubePos);
+		orbitCamera.setRadius(gRadius);
+		orbitCamera.rotate(gYaw, gPitch);
+
 		// Create the View matrix
-		view = glm::lookAt(camPos, camPos + targetPos, up);
+		view = orbitCamera.getViewMatrix();
 
 		// Create the projection matrix
 		projection = glm::perspective(glm::radians(45.0f), (float)pwidth / (float)pheight, 0.1f, 100.0f);
@@ -186,22 +205,18 @@ int main()
 		shaderProgram.setUniform("view", view);
 		shaderProgram.setUniform("projection", projection);
 
-		//glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture1"), 0);
-		glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture2"), 1);
-
-		GLfloat time = glfwGetTime();
-		GLfloat blueColor = (sin(time) / 2) + 0.5f;
-		glm::vec2 pos;
-		pos.x = sin(time) / 2;
-		pos.y = cos(time) / 2;
-		shaderProgram.setUniform("posOffset", pos);
-		shaderProgram.setUniform("vertColor", glm::vec4(0.0f, 0.0f, blueColor, 1.0f));
+		glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture1"), 0);
+		//glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture2"), 1);
 
 		glBindVertexArray(vao);
 		//glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
 		
+		floorTexture2D.bind(0);
+		model = glm::translate(model, floorPos) * glm::scale(model,glm::vec3(10.0f,0.0f,10.0f));
+		shaderProgram.setUniform("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 		glfwSwapBuffers(pWindow); 
 
 		lastTime = currentTime;
@@ -253,7 +268,18 @@ bool initOpenGL()
 		std::cerr << "GLEW initialization failed" << std::endl;
 		return false;
 	}
+
+	// Set the required callback functions
+	glfwSetKeyCallback(pWindow, glfw_onKey);
+	glfwSetFramebufferSizeCallback(pWindow, glfw_onFramebufferSize);
+	glfwSetCursorPosCallback(pWindow, glfw_onMouseMove);
+	glfwSetScrollCallback(pWindow,glfw_scrollInput);
+
 	glClearColor(0.23f, 0.38f, 0.47f, 1.0f);
+	glViewport(0, 0, pwidth, pheight);
+
+	glEnable(GL_DEPTH_TEST);
+
 	return true;
 }
 
@@ -270,6 +296,7 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
+
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 {
 	pwidth = width;
@@ -304,3 +331,40 @@ void showFPS(GLFWwindow* window)
 	}
 	frameCount++;
 }
+
+void glfw_onMouseMove(GLFWwindow* window, double posX, double posY)
+{
+	static glm::vec2 lastMousePos = glm::vec2(0, 0);
+
+	// Update angles based on Left Mouse Button input to orbit around the cube
+	if (glfwGetMouseButton(pWindow, GLFW_MOUSE_BUTTON_MIDDLE)==1)
+	{
+		// each pixel represents a quarter of a degree rotation (this is our mouse sensitivity)
+		gYaw -= ((float)posX - lastMousePos.x) * MOUSE_SENSITIVITY;
+		gPitch += ((float)posY - lastMousePos.y) * MOUSE_SENSITIVITY;
+	}
+
+	if (glfwGetMouseButton(pWindow, GLFW_MOUSE_BUTTON_MIDDLE)==1)
+	{
+		// each pixel represents a quarter of a degree rotation (this is our mouse sensitivity)
+		gYaw -= ((float)posX - lastMousePos.x) * MOUSE_SENSITIVITY;
+		gPitch += ((float)posY - lastMousePos.y) * MOUSE_SENSITIVITY;
+	}
+
+	// Change orbit camera radius with the Right Mouse Button
+	/*if (glfwGetMouseButton(pWindow, GLFW_MOUSE_BUTTON_RIGHT)==1)
+	{
+		float dx = 0.01f * ((float)posX - lastMousePos.x);
+		float dy = 0.01f * ((float)posY - lastMousePos.y);
+		gRadius += dx - dy;
+	}*/
+
+	lastMousePos.x = (float)posX;
+	lastMousePos.y = (float)posY;
+}
+
+void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff)
+{
+	gRadius -= Yoff;
+}
+
