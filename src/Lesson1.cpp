@@ -369,7 +369,7 @@ void update(double elapsedTime)
 {
 	double mouseX, mouseY;
 	glfwGetCursorPos(pWindow, &mouseX, &mouseY);
-	fpsCamera.rotate((float)(pwidth / 2.0 - mouseX) * MOUSE_SENSITIVITY, (float)(pwidth / 2.0 - mouseX) * MOUSE_SENSITIVITY);
+	fpsCamera.rotate((float)(pwidth / 2.0 - mouseX) * MOUSE_SENSITIVITY, (float)(pheight / 2.0 - mouseY) * MOUSE_SENSITIVITY);
 	glfwSetCursorPos(pWindow,pwidth/ 2.0, pheight / 2.0);
 
 	if (glfwGetKey(pWindow, GLFW_KEY_W) == GLFW_PRESS)
