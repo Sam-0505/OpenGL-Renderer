@@ -17,7 +17,7 @@ bool gFullScreen = false;
 GLFWwindow* pWindow ;
 bool gWireframe;
 
-const float MOUSE_SENSITIVITY = 0.25f;
+//const float MOUSE_SENSITIVITY = 0.25f;
 float gRadius = 10.0f;
 float gYaw = 0.0f;
 float gPitch = 0.0f;
@@ -27,9 +27,16 @@ float gPitch = 0.0f;
 const std::string texture1 = "D:/OpenGL/Project1/textures/crate.jpg";
 const std::string floorTexture = "D:/OpenGL/Project1/textures/grid.jpg";
 
+FPSCamera fpsCamera(glm::vec3(0.0f, 0.0f, 5.0f));
+const double ZOOM_SENSITIVITY = -3.0;
+const float MOVE_SPEED = 5.0; // units per second
+const float MOUSE_SENSITIVITY = 0.1f;
+
+
 // Function prototypes
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode);
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height);
+void update(double elapsedTime);
 void glfw_onMouseMove(GLFWwindow* window, double posX, double posY);
 void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff);
 void showFPS(GLFWwindow* window);
@@ -104,12 +111,6 @@ int main()
 	// Cube position
 	glm::vec3 cubePos = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 floorPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	// 2. Set up buffers on the GPU
-	/*GLuint indices[]=
-	{
-  		0,2,1,//triangle1
-		1,3,0 //triangle2
-	};*/
 
 	// 2. Set up buffer on the GPU
 	GLuint vbo, ibo, vao;
@@ -130,13 +131,6 @@ int main()
 	// Texture Coord attribute, identified as "1"
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5,(GLvoid*)(sizeof(GLfloat) * 3));
 	glEnableVertexAttribArray(1);
-	
-	/*
-	// Set up index buffer
-	glGenBuffers(1, &ibo);	// Create buffer space on the GPU for the index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	*/
 
 	ShaderProgram shaderProgram;
 	shaderProgram.loadShaders("basic.vert","basic.frag");
@@ -150,7 +144,7 @@ int main()
 	Texture2D floorTexture2D;
 	floorTexture2D.loadTexture(floorTexture, true);
 
-	OrbitCamera orbitCamera;
+	//OrbitCamera orbitCamera;
 
 	double lastTime = glfwGetTime();
 	float cubeAngle = 0.0f;
@@ -163,38 +157,27 @@ int main()
 		double deltaTime = currentTime - lastTime;
 		
 		glfwPollEvents();
-		
+		update(deltaTime);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		texture2D1.bind(0);
-		//texture2D2.bind(1);
 
 		glm::mat4 model, view, projection;
 
-		// Update the cube position and orientation.  Rotate first then translate
-		//cubeAngle += (float)(deltaTime * 50.0f);
-		//if (cubeAngle >= 360.0f) cubeAngle = 0.0f;
-
 		// Rotates around the cube center
-		model = glm::translate(model, cubePos) * glm::rotate(model, glm::radians(cubeAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, cubePos);
 
-		// Uncomment this line and comment the one above to flip the transformation of the cube.  Watch what happens!
-		// Rotates around??
-		//model = glm::rotate(model, glm::radians(gCubeAngle), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::translate(model, cubePos);
-
-		glm::vec3 camPos(0.0f, 0.0f, 0.0f);
-		glm::vec3 targetPos(0.0f, 0.0f, -1.0f);
-		glm::vec3 up(0.0f, 1.0f, 0.0f);
-
-		orbitCamera.setLookAt(cubePos);
-		orbitCamera.setRadius(gRadius);
-		orbitCamera.rotate(gYaw, gPitch);
+		//orbitCamera.setLookAt(cubePos);
+		//orbitCamera.setRadius(gRadius);
+		//orbitCamera.rotate(gYaw, gPitch);
 
 		// Create the View matrix
-		view = orbitCamera.getViewMatrix();
+		//view = orbitCamera.getViewMatrix();
+		view = fpsCamera.getViewMatrix();
 
 		// Create the projection matrix
-		projection = glm::perspective(glm::radians(45.0f), (float)pwidth / (float)pheight, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)pwidth / (float)pheight, 0.1f, 100.0f);
 
 		// Must be called BEFORE setting uniforms because setting uniforms is done
 		// on the currently active shader program.
@@ -260,7 +243,6 @@ bool initOpenGL()
 	}
 
 	glfwMakeContextCurrent(pWindow);
-	glfwSetKeyCallback(pWindow, glfw_onKey);
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
@@ -275,7 +257,12 @@ bool initOpenGL()
 	glfwSetCursorPosCallback(pWindow, glfw_onMouseMove);
 	glfwSetScrollCallback(pWindow,glfw_scrollInput);
 
+	// Hides and grabs cursor, unlimited movement
+	glfwSetInputMode(pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPos(pWindow, pwidth / 2.0, pheight / 2.0);
+
 	glClearColor(0.23f, 0.38f, 0.47f, 1.0f);
+
 	glViewport(0, 0, pwidth, pheight);
 
 	glEnable(GL_DEPTH_TEST);
@@ -287,7 +274,7 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window,GL_TRUE);
-	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	if (key == GLFW_KEY_F && action == GLFW_PRESS)
 		gWireframe = !gWireframe;
 	if (gWireframe)
 	{
@@ -295,6 +282,7 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 	}
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 }
 
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
@@ -365,6 +353,46 @@ void glfw_onMouseMove(GLFWwindow* window, double posX, double posY)
 
 void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff)
 {
-	gRadius -= Yoff;
+	//gRadius -= Yoff;
+
+	double fov = fpsCamera.getFOV() + Yoff * ZOOM_SENSITIVITY;
+
+	fov = glm::clamp(fov, 1.0, 120.0);
+
+	fpsCamera.setFOV((float)fov);
 }
 
+//-----------------------------------------------------------------------------
+// Update stuff every frame
+//-----------------------------------------------------------------------------
+void update(double elapsedTime)
+{
+	double mouseX, mouseY;
+	glfwGetCursorPos(pWindow, &mouseX, &mouseY);
+	fpsCamera.rotate((float)(pwidth / 2.0 - mouseX) * MOUSE_SENSITIVITY, (float)(pwidth / 2.0 - mouseX) * MOUSE_SENSITIVITY);
+	glfwSetCursorPos(pWindow,pwidth/ 2.0, pheight / 2.0);
+
+	if (glfwGetKey(pWindow, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		fpsCamera.move((float)elapsedTime * MOVE_SPEED * fpsCamera.getLook());
+	}
+	else if (glfwGetKey(pWindow, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		fpsCamera.move((float)elapsedTime * MOVE_SPEED * -fpsCamera.getLook());
+	}
+
+	if (glfwGetKey(pWindow, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		fpsCamera.move((float)elapsedTime * MOVE_SPEED * fpsCamera.getRight());
+	}
+	else if (glfwGetKey(pWindow, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		fpsCamera.move((float)elapsedTime * MOVE_SPEED *-fpsCamera.getRight());
+	}
+
+	// Up/down
+	if (glfwGetKey(pWindow, GLFW_KEY_Z) == GLFW_PRESS)
+		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getUp());
+	else if (glfwGetKey(pWindow, GLFW_KEY_X) == GLFW_PRESS)
+		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getUp());
+}
