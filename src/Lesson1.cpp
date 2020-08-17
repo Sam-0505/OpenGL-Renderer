@@ -8,6 +8,7 @@
 #include "ShaderProgram.h"
 #include "Texture2D.h"
 #include "Camera.h"
+#include "Mesh.h"
 
 // Global Variables
 const char* title = "OpenGL Starters";
@@ -24,8 +25,7 @@ float gPitch = 0.0f;
 
 //Shaders
 //const std::string texture2 = "D:/OpenGL/Project1/textures/airplane.png";
-const std::string texture1 = "D:/OpenGL/Project1/textures/crate.jpg";
-const std::string floorTexture = "D:/OpenGL/Project1/textures/grid.jpg";
+//const std::string floorTexture = "D:/OpenGL/Project1/textures/grid.jpg";
 
 FPSCamera fpsCamera(glm::vec3(0.0f, 0.0f, 5.0f));
 const double ZOOM_SENSITIVITY = -3.0;
@@ -52,97 +52,41 @@ int main()
 		std::cerr << "GLFW initialization failed" << std::endl;
 		return -1;
 	}
+	
+	const int modelNum = 4;
+	Mesh mesh[modelNum];
+	Texture2D texture2D[modelNum];
 
-	// Set up our quad
+	mesh[0].loadOBJ("D:/OpenGL/Project1/models/crate.obj");
+	mesh[1].loadOBJ("D:/OpenGL/Project1/models/woodcrate.obj");
+	mesh[2].loadOBJ("D:/OpenGL/Project1/models/robot.obj");
+	mesh[3].loadOBJ("D:/OpenGL/Project1/models/floor.obj");
 
-	// 1. Set up an array of vertices for a quad (2 triangls) with an index buffer data
-	GLfloat vertices[] = {
-		// position		 // tex coords
+	texture2D[0].loadTexture("D:/OpenGL/Project1/textures/crate.jpg", true);
+	texture2D[1].loadTexture("D:/OpenGL/Project1/textures/woodcrate_diffuse.jpg", true);
+	texture2D[2].loadTexture("D:/OpenGL/Project1/textures/robot_diffuse.jpg", true);
+	texture2D[3].loadTexture("D:/OpenGL/Project1/textures/tile_floor.jpg", true);
 
-	   // front face
-	   -1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
-		1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
-		1.0f,  1.0f,  1.0f, 1.0f, 1.0f,
-	   -1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
-	   -1.0f, -1.0f,  1.0f, 0.0f, 0.0f,
-		1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
-
-		// back face
-		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,
-		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-
-		 // left face
-		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		 -1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
-		 -1.0f,  1.0f,  1.0f, 1.0f, 1.0f,
-		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		 -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-		 -1.0f, -1.0f,  1.0f, 1.0f, 0.0f,
-
-		 // right face
-		  1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
-		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		  1.0f,  1.0f, -1.0f, 1.0f, 1.0f,
-		  1.0f,  1.0f,  1.0f, 0.0f, 1.0f,
-		  1.0f, -1.0f,  1.0f, 0.0f, 0.0f,
-		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-
-		  // top face
-		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		  1.0f,  1.0f,  1.0f, 1.0f, 0.0f,
-		  1.0f,  1.0f, -1.0f, 1.0f, 1.0f,
-		 -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		 -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,
-		  1.0f,  1.0f,  1.0f, 1.0f, 0.0f,
-
-		  // bottom face
-		 -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
-		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		  1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
-		 -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
-		 -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-		  1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
+	//Model Position
+	glm::vec3 modPos[] = 
+	{
+		glm::vec3(-2.5f, 1.0f, 0.0f),	// crate1
+		glm::vec3(2.5f, 1.0f, 0.0f),	// crate2
+		glm::vec3(0.0f, 1.0f, 0.0f),	// robot
+		glm::vec3(0.0f, 0.0f, 0.0f)		// floor
 	};
 
-	// Cube position
-	glm::vec3 cubePos = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 floorPos = glm::vec3(0.0f, 0.0f, 0.0f);
-
-	// 2. Set up buffer on the GPU
-	GLuint vbo, ibo, vao;
-
-	glGenBuffers(1, &vbo);// Generate an empty vertex buffer on the GPU
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);// "bind" or set as the current buffer we are working with
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);// copy the data from CPU to GPU
-
-	// The vertex array object (VAO) is a little descriptor that defines which data from vertex buffer objects should be used as input 
-	// variables to vertex shaders.
-	glGenVertexArrays(1, &vao);// Tell OpenGL to create new Vertex Array Object
-	glBindVertexArray(vao);// Make it the current one
-	
-	// Position attribute, identified as "0"
-	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE, sizeof(GLfloat) * 5,NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
-	glEnableVertexAttribArray(0);//Enable first Attribute or attribute"0"
-
-	// Texture Coord attribute, identified as "1"
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5,(GLvoid*)(sizeof(GLfloat) * 3));
-	glEnableVertexAttribArray(1);
+	// Model scale
+	glm::vec3 modScale[] = 
+	{
+		glm::vec3(1.0f, 1.0f, 1.0f),	// crate1
+		glm::vec3(1.0f, 1.0f, 1.0f),	// crate2
+		glm::vec3(1.0f, 1.0f, 1.0f),	// robot
+		glm::vec3(10.0f, 1.0f, 10.0f)	// floor
+	};
 
 	ShaderProgram shaderProgram;
 	shaderProgram.loadShaders("basic.vert","basic.frag");
-
-	Texture2D texture2D1;
-	texture2D1.loadTexture(texture1, true);
-
-	//Texture2D texture2D2;
-	//texture2D2.loadTexture(texture2, true);
-
-	Texture2D floorTexture2D;
-	floorTexture2D.loadTexture(floorTexture, true);
 
 	//OrbitCamera orbitCamera;
 
@@ -161,12 +105,12 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		texture2D1.bind(0);
+		//texture2D1.bind(0);
 
 		glm::mat4 model, view, projection;
 
 		// Rotates around the cube center
-		model = glm::translate(model, cubePos);
+		
 
 		//orbitCamera.setLookAt(cubePos);
 		//orbitCamera.setRadius(gRadius);
@@ -184,28 +128,24 @@ int main()
 		shaderProgram.use();
 
 		// Pass the matrices to the shader
-		shaderProgram.setUniform("model", model);
 		shaderProgram.setUniform("view", view);
 		shaderProgram.setUniform("projection", projection);
+		for (int i = 0; i < modelNum; i++)
+		{
+			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
+			shaderProgram.setUniform("model", model);
 
-		glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture1"), 0);
-		//glUniform1i(glGetUniformLocation(shaderProgram.getProgram(), "myTexture2"), 1);
-
-		glBindVertexArray(vao);
-		//glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		
-		floorTexture2D.bind(0);
-		model = glm::translate(model, floorPos) * glm::scale(model,glm::vec3(10.0f,0.0f,10.0f));
-		shaderProgram.setUniform("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+			texture2D[i].bind(0);
+			mesh[i].draw();
+			texture2D[i].unbind(0);
+		}
 
 		glfwSwapBuffers(pWindow); 
+		glfwPollEvents();
 
 		lastTime = currentTime;
 	}
-	glDeleteVertexArrays(1, &vao);
-	glDeleteVertexArrays(1, &vbo);
+	
 	glfwTerminate();
 	return 0;
 }
