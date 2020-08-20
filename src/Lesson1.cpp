@@ -57,7 +57,7 @@ int main()
 	Mesh mesh[modelNum];
 	Texture2D texture2D[modelNum];
 
-	mesh[0].loadOBJ("D:/OpenGL/Project1/models/crate.obj");
+	mesh[0].loadOBJ("D:/OpenGL/Project1/models/tea.obj");
 	mesh[1].loadOBJ("D:/OpenGL/Project1/models/woodcrate.obj");
 	mesh[2].loadOBJ("D:/OpenGL/Project1/models/robot.obj");
 	mesh[3].loadOBJ("D:/OpenGL/Project1/models/floor.obj");

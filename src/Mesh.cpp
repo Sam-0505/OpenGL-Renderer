@@ -46,58 +46,74 @@ bool Mesh::loadOBJ(const std::string& filename)
 			{
 				while (std::getline(in_file, line))
 				{
-					std::string prefix = line.substr(0, 2);
-					if (prefix == "v ")
+					std::stringstream ss(line);
+					std::string cmd;
+					ss >> cmd;
+					if (cmd == "v")
 					{
-						const char* lineBuff = line.c_str();
 						glm::vec3 tempPos;
-						int match = sscanf_s(lineBuff, "v %f %f %f", &tempPos.x, &tempPos.y, &tempPos.z);
-						if (match != 3)
-							std::cout << "Failed to parse OBJ file using our very simple OBJ loader Pos(v)" << std::endl;
-
+						int dim=0;
+						while (dim<3)
+						{
+							ss >> tempPos[dim];
+							dim++; 
+						}
 						vert_pos.push_back(tempPos);
 					}
-					else if (prefix == "vt")
+					else if (cmd == "vt")
 					{
-						const char* lineBuff = line.c_str();
-						float gf;
 						glm::vec2 texCoord;
-						int match = sscanf_s(lineBuff, "vt %f %f %f", &texCoord.x, &texCoord.y, &gf);
-						if (match != 3)
-							std::cout << "Failed to parse OBJ file using our very simple OBJ loader(vt)" << std::endl;
+						int dim = 0;
+						while (dim < 2)
+						{
+							ss >> texCoord[dim];
+							dim++;
+						}
 						tex_coords.push_back(texCoord);
 					}
-					else if (prefix == "vn")
+					else if (cmd == "vn")
 					{
-						const char* lineBuff = line.c_str();
 						glm::vec3 tempNor;
-						int match = sscanf_s(lineBuff, "vn %f %f %f", &tempNor.x, &tempNor.y, &tempNor.z);
-						if (match != 3)
-							std::cout << "Failed to parse OBJ file using our very simple OBJ loader(vn)" << std::endl;
-						vert_nor.push_back(tempNor);
+						int dim = 0;
+						while (dim < 3)
+						{
+							ss >> tempNor[dim];
+							dim++;
+						}
+						glm::vec3 normal = glm::normalize(tempNor);
+						vert_nor.push_back(normal);
 					}
-					else if (prefix == "f ")
+					else if (cmd == "f")
 					{
-						const char* lineBuff = line.c_str();
-						GLint p1, p2, p3, t1, t2, t3, n1, n2, n3;
-						int match=sscanf_s(lineBuff, "f %i/%i/%i %i/%i/%i %i/%i/%i", &p1, &t1, &n1, &p2, &t2, &n3, &p3, &t3, &n3);
-						if (match != 9)
-							std::cout << "Failed to parse OBJ file using our very simple OBJ loader(f)" << std::endl;
-						vert_pos_indices.push_back(p1);
-						vert_pos_indices.push_back(p2);
-						vert_pos_indices.push_back(p3);
-
-						tex_coord_indices.push_back(t1);
-						tex_coord_indices.push_back(t2);
-						tex_coord_indices.push_back(t3);
+						std::string vert;
+						while (ss >> vert)
+						{
+							std::vector<std::string> indices = split(vert, "/");
+							if (indices.size() > 0)
+							{
+								vert_pos_indices.push_back(std::stoi(indices[0]));
+							}
+							if (indices.size() > 1)
+							{
+								tex_coord_indices.push_back(std::stoi(indices[1]));
+							}
+							if (indices.size() > 2)
+							{
+								vert_nor_indices.push_back(std::stoi(indices[2]));
+							}
+						}
 					}
 				}
 				for (int i = 0; i < vert_pos_indices.size(); i++)
 				{
 
 					Vertex tempVertex;
-					tempVertex.position = vert_pos[vert_pos_indices[i] - 1];
-					tempVertex.texCoords = tex_coords[tex_coord_indices[i] - 1];
+					if(vert_pos.size()>0)
+						tempVertex.position = vert_pos[vert_pos_indices[i] - 1];
+					if(vert_nor.size()>0)
+						tempVertex.normal = vert_nor[vert_nor_indices[i] - 1];
+					if(tex_coords.size()>0)
+						tempVertex.texCoords=tex_coords[tex_coord_indices[i] - 1];
 
 					mVertices.push_back(tempVertex);
 				}
@@ -114,6 +130,23 @@ bool Mesh::loadOBJ(const std::string& filename)
 		return -1;
 	}
 	return false;
+}
+
+std::vector<std::string> Mesh::split(std::string vert, std::string del)
+{
+	int pos = 0;
+	std::vector<std::string> res;
+	while(true)
+	{ 
+		pos = vert.find(del);
+		if (pos == -1)
+		{
+			res.push_back(vert.substr(0,pos));
+			return res;
+		}
+		res.push_back(vert.substr(0, pos));
+		vert = vert.substr(pos+1,vert.size()-pos-1);
+	}
 }
 
 void Mesh::initBuffers()

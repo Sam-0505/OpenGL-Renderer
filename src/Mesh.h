@@ -12,6 +12,7 @@ struct Vertex
 {
 	glm::vec3 position;
 	glm::vec2 texCoords;
+	glm::vec3 normal;
 };
 
 class Mesh
@@ -23,10 +24,12 @@ public:
 
 	bool loadOBJ(const std::string& filename);
 	void draw();
+	
 
 private:
 
 	void initBuffers();
+	std::vector<std::string> split(std::string vert, std::string del);
 
 	bool mLoaded;
 	std::vector<Vertex> mVertices;	GLuint mVBO, mVAO;
