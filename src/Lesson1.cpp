@@ -53,19 +53,26 @@ int main()
 		return -1;
 	}
 	
-	const int modelNum = 4;
+	const int modelNum = 6;
 	Mesh mesh[modelNum];
 	Texture2D texture2D[modelNum];
 
-	mesh[0].loadOBJ("D:/OpenGL/Project1/models/tea.obj");
+	mesh[0].loadOBJ("D:/OpenGL/Project1/models/crate.obj");
 	mesh[1].loadOBJ("D:/OpenGL/Project1/models/woodcrate.obj");
 	mesh[2].loadOBJ("D:/OpenGL/Project1/models/robot.obj");
 	mesh[3].loadOBJ("D:/OpenGL/Project1/models/floor.obj");
+	mesh[4].loadOBJ("D:/OpenGL/Project1/models/bowling_pin.obj");
+	mesh[5].loadOBJ("D:/OpenGL/Project1/models/bunny.obj");
 
 	texture2D[0].loadTexture("D:/OpenGL/Project1/textures/crate.jpg", true);
 	texture2D[1].loadTexture("D:/OpenGL/Project1/textures/woodcrate_diffuse.jpg", true);
 	texture2D[2].loadTexture("D:/OpenGL/Project1/textures/robot_diffuse.jpg", true);
 	texture2D[3].loadTexture("D:/OpenGL/Project1/textures/tile_floor.jpg", true);
+	texture2D[4].loadTexture("D:/OpenGL/Project1/textures/AMF.tga", true);
+	texture2D[5].loadTexture("D:/OpenGL/Project1/textures/bunny_diffuse.jpg", true);
+
+	Mesh lightMesh;
+	lightMesh.loadOBJ("D:/OpenGL/Project1/models/crate.obj");
 
 	//Model Position
 	glm::vec3 modPos[] = 
@@ -73,7 +80,9 @@ int main()
 		glm::vec3(-2.5f, 1.0f, 0.0f),	// crate1
 		glm::vec3(2.5f, 1.0f, 0.0f),	// crate2
 		glm::vec3(0.0f, 1.0f, 0.0f),	// robot
-		glm::vec3(0.0f, 0.0f, 0.0f)		// floor
+		glm::vec3(0.0f, 0.0f, 0.0f),		// floor
+		glm::vec3(0.0f, 0.0f, 2.0f),	// pin
+		glm::vec3(-2.0f, 0.0f, 2.0f)	// bunny
 	};
 
 	// Model scale
@@ -82,17 +91,26 @@ int main()
 		glm::vec3(1.0f, 1.0f, 1.0f),	// crate1
 		glm::vec3(1.0f, 1.0f, 1.0f),	// crate2
 		glm::vec3(1.0f, 1.0f, 1.0f),	// robot
-		glm::vec3(10.0f, 1.0f, 10.0f)	// floor
+		glm::vec3(10.0f, 1.0f, 10.0f),	// floor
+		glm::vec3(0.1f, 0.1f, 0.1f),	// pin
+		glm::vec3(0.7f, 0.7f, 0.7f)		// bunny
 	};
 
+	ShaderProgram lightProgram;
+	lightProgram.loadShaders("D:/OpenGL/Project1/shaders/light.vert", "D:/OpenGL/Project1/shaders/light.frag");
+
 	ShaderProgram shaderProgram;
-	shaderProgram.loadShaders("basic.vert","basic.frag");
+	shaderProgram.loadShaders("D:/OpenGL/Project1/shaders/basic.vert","D:/OpenGL/Project1/shaders/basic.frag");
 
 	//OrbitCamera orbitCamera;
 
 	double lastTime = glfwGetTime();
 	float cubeAngle = 0.0f;
+	float lightAngle = 0.0f;
 	
+	glm::vec3 lightPos = glm::vec3(0.0f,1.0f,10.0f);
+	glm::vec3 lightColor = glm::vec3(1.0f,1.0f,0.0f);
+
 	while (!glfwWindowShouldClose(pWindow))
 	{
 		showFPS(pWindow);
@@ -108,10 +126,7 @@ int main()
 		//texture2D1.bind(0);
 
 		glm::mat4 model, view, projection;
-
-		// Rotates around the cube center
 		
-
 		//orbitCamera.setLookAt(cubePos);
 		//orbitCamera.setRadius(gRadius);
 		//orbitCamera.rotate(gYaw, gPitch);
@@ -130,6 +145,8 @@ int main()
 		// Pass the matrices to the shader
 		shaderProgram.setUniform("view", view);
 		shaderProgram.setUniform("projection", projection);
+		shaderProgram.setUniform("lightColor", lightColor);
+		shaderProgram.setUniform("lightPos", lightPos);
 		for (int i = 0; i < modelNum; i++)
 		{
 			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
@@ -139,6 +156,17 @@ int main()
 			mesh[i].draw();
 			texture2D[i].unbind(0);
 		}
+
+		lightAngle+= (float)deltaTime * 50.0f;
+		lightPos.x = 8.0f * sin(glm::radians(lightAngle));
+		model = glm::translate(glm::mat4(), lightPos);
+		lightProgram.use();
+		lightProgram.setUniform("model", model);
+		lightProgram.setUniform("lightColor", lightColor);
+		lightProgram.setUniform("view", view);
+		lightProgram.setUniform("projection", projection);
+		lightProgram.setUniform("lightPos",lightPos);
+		lightMesh.draw();
 
 		glfwSwapBuffers(pWindow); 
 		glfwPollEvents();

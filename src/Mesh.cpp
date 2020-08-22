@@ -95,7 +95,8 @@ bool Mesh::loadOBJ(const std::string& filename)
 							}
 							if (indices.size() > 1)
 							{
-								tex_coord_indices.push_back(std::stoi(indices[1]));
+								if(indices[1].size()>0)
+									tex_coord_indices.push_back(std::stoi(indices[1]));
 							}
 							if (indices.size() > 2)
 							{
@@ -164,9 +165,13 @@ void Mesh::initBuffers()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);//(AttribIndex,No. of components,Data type,Normalize?,Stride Length,Offset
 	glEnableVertexAttribArray(0);//Enable first Attribute or attribute"0"
 
-	// Texture Coord attribute, identified as "1"
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(sizeof(GL_FLOAT)*3));
+	//Vertex Normals Attribute,identified as "1"
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(sizeof(GL_FLOAT) * 3));
 	glEnableVertexAttribArray(1);
+
+	// Texture Coord attribute, identified as "2"
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(sizeof(GL_FLOAT)*6));
+	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
 }
