@@ -109,7 +109,8 @@ int main()
 	float lightAngle = 0.0f;
 	
 	glm::vec3 lightPos = glm::vec3(0.0f,1.0f,10.0f);
-	glm::vec3 lightColor = glm::vec3(1.0f,1.0f,0.0f);
+	glm::vec3 lightColor= glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 viewPos = fpsCamera.getViewPos();
 
 	while (!glfwWindowShouldClose(pWindow))
 	{
@@ -137,6 +138,7 @@ int main()
 
 		// Create the projection matrix
 		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)pwidth / (float)pheight, 0.1f, 100.0f);
+		glm::vec3 viewPos = fpsCamera.getViewPos();
 
 		// Must be called BEFORE setting uniforms because setting uniforms is done
 		// on the currently active shader program.
@@ -145,12 +147,21 @@ int main()
 		// Pass the matrices to the shader
 		shaderProgram.setUniform("view", view);
 		shaderProgram.setUniform("projection", projection);
-		shaderProgram.setUniform("lightColor", lightColor);
-		shaderProgram.setUniform("lightPos", lightPos);
+		shaderProgram.setUniform("light.position", lightPos);
+		shaderProgram.setUniform("light.ambient", glm::vec3(0.2f,0.2f,0.2f));
+		shaderProgram.setUniform("light.specular", glm::vec3(1.0f,1.0f, 1.0f));
+		shaderProgram.setUniform("light.diffuse", lightColor);
+		shaderProgram.setUniform("viewPos", viewPos);
+
 		for (int i = 0; i < modelNum; i++)
 		{
 			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
 			shaderProgram.setUniform("model", model);
+
+			shaderProgram.setUniform("material.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
+			shaderProgram.setUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+			shaderProgram.setUniform("material.diffuseMap", 0);
+			shaderProgram.setUniform("material.shininess", 32.0f);
 
 			texture2D[i].bind(0);
 			mesh[i].draw();
