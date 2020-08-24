@@ -147,12 +147,31 @@ int main()
 		// Pass the matrices to the shader
 		shaderProgram.setUniform("view", view);
 		shaderProgram.setUniform("projection", projection);
-		shaderProgram.setUniform("light.position", lightPos);
-		shaderProgram.setUniform("light.ambient", glm::vec3(0.2f,0.2f,0.2f));
-		shaderProgram.setUniform("light.specular", glm::vec3(1.0f,1.0f, 1.0f));
-		shaderProgram.setUniform("light.diffuse", lightColor);
 		shaderProgram.setUniform("viewPos", viewPos);
+		//shaderProgram.setUniform("dlight.position", lightPos);
+		shaderProgram.setUniform("dlight.ambient", glm::vec3(0.2f,0.2f,0.2f));
+		shaderProgram.setUniform("dlight.specular", glm::vec3(1.0f,1.0f, 1.0f));
+		shaderProgram.setUniform("dlight.diffuse", lightColor);
+		shaderProgram.setUniform("dlight.direction", glm::vec3(-1.0f,-1.0f, 1.0f));
 
+		shaderProgram.setUniform("plight.position", lightPos);
+		shaderProgram.setUniform("plight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+		shaderProgram.setUniform("plight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shaderProgram.setUniform("plight.diffuse", lightColor);
+		shaderProgram.setUniform("plight.constant", 1.0f);
+		shaderProgram.setUniform("plight.linear", 0.07f);
+		shaderProgram.setUniform("plight.quad", 0.017f);
+
+		shaderProgram.setUniform("slight.position", lightPos);
+		shaderProgram.setUniform("slight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+		shaderProgram.setUniform("slight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shaderProgram.setUniform("slight.diffuse", lightColor);
+		shaderProgram.setUniform("slight.direction", glm::vec3(0.0f, 0.0f, -1.0f));
+		shaderProgram.setUniform("slight.cosInnerCone", cos(glm::radians(30.0f)));
+		shaderProgram.setUniform("slight.cosOuterCone", cos(glm::radians(60.0f)));
+		shaderProgram.setUniform("slight.constant", 1.0f);
+		shaderProgram.setUniform("slight.linear", 0.07f);
+		shaderProgram.setUniform("slight.quad", 0.017f);
 		for (int i = 0; i < modelNum; i++)
 		{
 			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
@@ -169,7 +188,7 @@ int main()
 		}
 
 		lightAngle+= (float)deltaTime * 50.0f;
-		lightPos.x = 8.0f * sin(glm::radians(lightAngle));
+		//lightPos.x = 8.0f * sin(glm::radians(lightAngle));
 		model = glm::translate(glm::mat4(), lightPos);
 		lightProgram.use();
 		lightProgram.setUniform("model", model);
