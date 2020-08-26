@@ -63,7 +63,7 @@ void main()
 {
 	//diffuse
 	vec3 normal=normalize(Normal);
-	vec3 result=calcSpotLight(normal);
+	vec3 result=calcSpotLight(normal)+calcSpotLight(normal)+calcSpotLight(normal);
 	frag_color=vec4(result,1.0f);
 }
 

@@ -77,6 +77,7 @@ public:
 	// Camera Controls
 	void setLookAt(const glm::vec3& target);
 	void setRadius(float radius);
+	virtual void move(const glm::vec3& offsetPos);
 
 private:
 

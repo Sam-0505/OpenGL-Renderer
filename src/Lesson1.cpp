@@ -9,25 +9,33 @@
 #include "Texture2D.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "ImGui/imgui_impl_opengl3.h"
+#include "ImGui/imgui_impl_glfw.h"
+#include "ImGui/imgui_impl_opengl3.cpp"
+#include "ImGui/imgui_impl_glfw.cpp"
 
 // Global Variables
+OrbitCamera orbitCamera;
 const char* title = "OpenGL Starters";
 int pheight = 768;
 int pwidth = 1024;
 bool gFullScreen = false;
 GLFWwindow* pWindow ;
 bool gWireframe;
+const char* glsl_version = "#version 330 core";
+bool pan = false;
 
 //const float MOUSE_SENSITIVITY = 0.25f;
 float gRadius = 10.0f;
 float gYaw = 0.0f;
 float gPitch = 0.0f;
-
+double lastmouseX = pwidth / 2.0; 
+double lastmouseY = pheight / 2.0;
 //Shaders
 //const std::string texture2 = "D:/OpenGL/Project1/textures/airplane.png";
 //const std::string floorTexture = "D:/OpenGL/Project1/textures/grid.jpg";
 
-FPSCamera fpsCamera(glm::vec3(0.0f, 0.0f, 5.0f));
+//FPSCamera fpsCamera(glm::vec3(0.0f, 0.0f, 5.0f));
 const double ZOOM_SENSITIVITY = -3.0;
 const float MOVE_SPEED = 5.0; // units per second
 const float MOUSE_SENSITIVITY = 0.1f;
@@ -36,11 +44,13 @@ const float MOUSE_SENSITIVITY = 0.1f;
 // Function prototypes
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode);
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height);
-void update(double elapsedTime);
+//void update(double elapsedTime, double* lastmouseX, double* lastmouseY);
 void glfw_onMouseMove(GLFWwindow* window, double posX, double posY);
 void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff);
 void showFPS(GLFWwindow* window);
 bool initOpenGL();
+
+void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_color);
 
 //-----------------------------------------------------------------------------
 // Main Application Entry Point
@@ -102,15 +112,18 @@ int main()
 	ShaderProgram shaderProgram;
 	shaderProgram.loadShaders("D:/OpenGL/Project1/shaders/basic.vert","D:/OpenGL/Project1/shaders/basic.frag");
 
-	//OrbitCamera orbitCamera;
-
 	double lastTime = glfwGetTime();
 	float cubeAngle = 0.0f;
 	float lightAngle = 0.0f;
 	
 	glm::vec3 lightPos = glm::vec3(0.0f,1.0f,10.0f);
 	glm::vec3 lightColor= glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 viewPos = fpsCamera.getViewPos();
+	glm::vec3 viewPos = orbitCamera.getViewPos();
+
+	// Our state
+	bool show_demo_window = true;
+	bool show_another_window = false;
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	while (!glfwWindowShouldClose(pWindow))
 	{
@@ -120,7 +133,9 @@ int main()
 		double deltaTime = currentTime - lastTime;
 		
 		glfwPollEvents();
-		update(deltaTime);
+		//update(deltaTime,&lastmouseX,&lastmouseY);
+
+		UILoader(show_demo_window, show_another_window, clear_color);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -128,17 +143,16 @@ int main()
 
 		glm::mat4 model, view, projection;
 		
-		//orbitCamera.setLookAt(cubePos);
-		//orbitCamera.setRadius(gRadius);
-		//orbitCamera.rotate(gYaw, gPitch);
+		orbitCamera.setRadius(gRadius);
+		orbitCamera.rotate(gYaw, gPitch);
 
 		// Create the View matrix
-		//view = orbitCamera.getViewMatrix();
-		view = fpsCamera.getViewMatrix();
+		view = orbitCamera.getViewMatrix();
+		//view = fpsCamera.getViewMatrix();
 
 		// Create the projection matrix
-		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)pwidth / (float)pheight, 0.1f, 100.0f);
-		glm::vec3 viewPos = fpsCamera.getViewPos();
+		projection = glm::perspective(glm::radians(orbitCamera.getFOV()), (float)pwidth / (float)pheight, 0.1f, 100.0f);
+		glm::vec3 viewPos = orbitCamera.getViewPos();
 
 		// Must be called BEFORE setting uniforms because setting uniforms is done
 		// on the currently active shader program.
@@ -148,11 +162,11 @@ int main()
 		shaderProgram.setUniform("view", view);
 		shaderProgram.setUniform("projection", projection);
 		shaderProgram.setUniform("viewPos", viewPos);
-		//shaderProgram.setUniform("dlight.position", lightPos);
-		shaderProgram.setUniform("dlight.ambient", glm::vec3(0.2f,0.2f,0.2f));
-		shaderProgram.setUniform("dlight.specular", glm::vec3(1.0f,1.0f, 1.0f));
+
+		shaderProgram.setUniform("dlight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+		shaderProgram.setUniform("dlight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 		shaderProgram.setUniform("dlight.diffuse", lightColor);
-		shaderProgram.setUniform("dlight.direction", glm::vec3(-1.0f,-1.0f, 1.0f));
+		shaderProgram.setUniform("dlight.direction", glm::vec3(1.0f, 1.0f, 1.0f));
 
 		shaderProgram.setUniform("plight.position", lightPos);
 		shaderProgram.setUniform("plight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
@@ -172,6 +186,7 @@ int main()
 		shaderProgram.setUniform("slight.constant", 1.0f);
 		shaderProgram.setUniform("slight.linear", 0.07f);
 		shaderProgram.setUniform("slight.quad", 0.017f);
+
 		for (int i = 0; i < modelNum; i++)
 		{
 			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
@@ -198,14 +213,71 @@ int main()
 		lightProgram.setUniform("lightPos",lightPos);
 		lightMesh.draw();
 
+		// Rendering
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		glfwSwapBuffers(pWindow); 
 		glfwPollEvents();
 
 		lastTime = currentTime;
 	}
-	
+
+	// Cleanup
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 	glfwTerminate();
 	return 0;
+}
+
+void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_color)
+{
+	// Start the Dear ImGui frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+	if (show_demo_window)
+		ImGui::ShowDemoWindow(&show_demo_window);
+
+	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		static float f = 0.0f;
+		static int counter = 0;
+
+		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		ImGui::Checkbox("Another Window", &show_another_window);
+
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			counter++;
+		ImGui::SameLine();
+		ImGui::Text("counter = %d", counter);
+
+		if (ImGui::CollapsingHeader("Directional Light"))
+		{
+
+		}
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
+	
+	// 3. Show another simple window.
+	if (show_another_window)
+	{
+		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Text("Hello from another window!");
+		if (ImGui::Button("Close Me"))
+			show_another_window = false;
+		ImGui::End();
+	}
 }
 
 bool initOpenGL()
@@ -256,7 +328,6 @@ bool initOpenGL()
 	glfwSetScrollCallback(pWindow,glfw_scrollInput);
 
 	// Hides and grabs cursor, unlimited movement
-	glfwSetInputMode(pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPos(pWindow, pwidth / 2.0, pheight / 2.0);
 
 	glClearColor(0.23f, 0.38f, 0.47f, 1.0f);
@@ -264,6 +335,21 @@ bool initOpenGL()
 	glViewport(0, 0, pwidth, pheight);
 
 	glEnable(GL_DEPTH_TEST);
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
+
+	// Setup Platform/Renderer bindings
+	ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
+	ImGui_ImplOpenGL3_Init(glsl_version);
 
 	return true;
 }
@@ -280,7 +366,6 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 	}
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 }
 
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
@@ -321,20 +406,16 @@ void showFPS(GLFWwindow* window)
 void glfw_onMouseMove(GLFWwindow* window, double posX, double posY)
 {
 	static glm::vec2 lastMousePos = glm::vec2(0, 0);
-
-	// Update angles based on Left Mouse Button input to orbit around the cube
 	if (glfwGetMouseButton(pWindow, GLFW_MOUSE_BUTTON_MIDDLE)==1)
 	{
 		// each pixel represents a quarter of a degree rotation (this is our mouse sensitivity)
-		gYaw -= ((float)posX - lastMousePos.x) * MOUSE_SENSITIVITY;
-		gPitch += ((float)posY - lastMousePos.y) * MOUSE_SENSITIVITY;
+			gYaw -= ((float)posX - lastMousePos.x) * MOUSE_SENSITIVITY;
+			gPitch += ((float)posY - lastMousePos.y) * MOUSE_SENSITIVITY;
 	}
-
-	if (glfwGetMouseButton(pWindow, GLFW_MOUSE_BUTTON_MIDDLE)==1)
+	if (glfwGetMouseButton(pWindow, GLFW_MOUSE_BUTTON_RIGHT) == 1)
 	{
 		// each pixel represents a quarter of a degree rotation (this is our mouse sensitivity)
-		gYaw -= ((float)posX - lastMousePos.x) * MOUSE_SENSITIVITY;
-		gPitch += ((float)posY - lastMousePos.y) * MOUSE_SENSITIVITY;
+		orbitCamera.move(MOUSE_SENSITIVITY*0.5f*glm::vec3((float)posX - lastMousePos.x, (float)posY - lastMousePos.y, 0.0f));
 	}
 
 	// Change orbit camera radius with the Right Mouse Button
@@ -349,26 +430,30 @@ void glfw_onMouseMove(GLFWwindow* window, double posX, double posY)
 	lastMousePos.y = (float)posY;
 }
 
+
 void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff)
 {
-	//gRadius -= Yoff;
+	gRadius -= Yoff;
 
-	double fov = fpsCamera.getFOV() + Yoff * ZOOM_SENSITIVITY;
+	//double fov = fpsCamera.getFOV() + Yoff * ZOOM_SENSITIVITY;
 
-	fov = glm::clamp(fov, 1.0, 120.0);
+	//fov = glm::clamp(fov, 1.0, 120.0);
 
-	fpsCamera.setFOV((float)fov);
+	//fpsCamera.setFOV((float)fov);
 }
 
 //-----------------------------------------------------------------------------
 // Update stuff every frame
 //-----------------------------------------------------------------------------
-void update(double elapsedTime)
+/*
+void update(double elapsedTime,double *lastmouseX, double * lastmouseY)
 {
 	double mouseX, mouseY;
+	double lastX = *lastmouseX;
+	double lastY = *lastmouseY;
 	glfwGetCursorPos(pWindow, &mouseX, &mouseY);
-	fpsCamera.rotate((float)(pwidth / 2.0 - mouseX) * MOUSE_SENSITIVITY, (float)(pheight / 2.0 - mouseY) * MOUSE_SENSITIVITY);
-	glfwSetCursorPos(pWindow,pwidth/ 2.0, pheight / 2.0);
+	fpsCamera.rotate((float)(lastX - mouseX) * MOUSE_SENSITIVITY, (float)(lastY - mouseY) * MOUSE_SENSITIVITY);
+	glfwSetCursorPos(pWindow,mouseX, mouseY);
 
 	if (glfwGetKey(pWindow, GLFW_KEY_W) == GLFW_PRESS)
 	{
@@ -393,4 +478,7 @@ void update(double elapsedTime)
 		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getUp());
 	else if (glfwGetKey(pWindow, GLFW_KEY_X) == GLFW_PRESS)
 		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getUp());
+	*lastmouseX=mouseX;
+	*lastmouseY=mouseY;
 }
+*/

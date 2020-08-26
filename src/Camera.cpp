@@ -6,7 +6,7 @@ const float DEF_FOV = 45.0f; // degrees
 
 Camera::Camera()
 	:mPosition(glm::vec3(0.0f, 0.0f, 0.0f)),
-	mTargetPos(glm::vec3(0.0f,0.0f,0.0f)),
+	mTargetPos(glm::vec3(0.0f,0.0f,10.0f)),
 	mUp(glm::vec3(0.0f,1.0f,0.0f)),
 	mRight(0.0f, 0.0f, 0.0f),
 	WORLD_UP(0.0f, 1.0f, 0.0f),
@@ -97,6 +97,12 @@ void FPSCamera::updateCameraVectors()
 OrbitCamera::OrbitCamera()
 	:mRadius(10.0f)
 {
+}
+
+void OrbitCamera::move(const glm::vec3& offsetPos)
+{
+	mTargetPos += offsetPos;
+	updateCameraVectors();
 }
 
 void OrbitCamera::setLookAt(const glm::vec3& target)
