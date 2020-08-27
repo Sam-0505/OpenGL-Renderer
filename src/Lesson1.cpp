@@ -4,11 +4,13 @@
 #include "GL/glew.h"// Important - this header must come before glfw3 header
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
+#include <glm/gtc/type_ptr.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
 #include "Texture2D.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "ImGui/imconfig.h"
 #include "ImGui/imgui_impl_opengl3.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.cpp"
@@ -31,15 +33,21 @@ float gYaw = 0.0f;
 float gPitch = 0.0f;
 double lastmouseX = pwidth / 2.0; 
 double lastmouseY = pheight / 2.0;
-//Shaders
-//const std::string texture2 = "D:/OpenGL/Project1/textures/airplane.png";
-//const std::string floorTexture = "D:/OpenGL/Project1/textures/grid.jpg";
+
+ImVec4 dambient= ImVec4(0.2f,0.2f,0.2f,1.0f);
+ImVec4 dspecular = ImVec4(1.0f,1.0f,1.0f,1.0f);
+ImVec4 ddiffuse= ImVec4( 1.0f,1.0f,1.0f,1.0f);
+float ddir[] = { 1.0f,1.0f,0.0f};
+
+ImVec4 pambient= ImVec4(0.2f,0.2f,0.2f,1.0f);
+ImVec4 pspecular= ImVec4(1.0f,1.0f,1.0f,1.0f);
+ImVec4 pdiffuse= ImVec4(1.0f,1.0f,1.0f,1.0f);
+float ppos[] = {1.0f,1.0f,0.0f};
 
 //FPSCamera fpsCamera(glm::vec3(0.0f, 0.0f, 5.0f));
 const double ZOOM_SENSITIVITY = -3.0;
 const float MOVE_SPEED = 5.0; // units per second
 const float MOUSE_SENSITIVITY = 0.1f;
-
 
 // Function prototypes
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -49,9 +57,10 @@ void glfw_onMouseMove(GLFWwindow* window, double posX, double posY);
 void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff);
 void showFPS(GLFWwindow* window);
 bool initOpenGL();
-
 void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_color);
-
+glm::vec3 vec3Convert(ImVec4 var);
+ImFont* font1;
+ImFont* font2;
 //-----------------------------------------------------------------------------
 // Main Application Entry Point
 //-----------------------------------------------------------------------------
@@ -120,6 +129,9 @@ int main()
 	glm::vec3 lightColor= glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 viewPos = orbitCamera.getViewPos();
 
+	ImFont* font1;
+	ImFont* font2;
+
 	// Our state
 	bool show_demo_window = true;
 	bool show_another_window = false;
@@ -163,15 +175,15 @@ int main()
 		shaderProgram.setUniform("projection", projection);
 		shaderProgram.setUniform("viewPos", viewPos);
 
-		shaderProgram.setUniform("dlight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-		shaderProgram.setUniform("dlight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		shaderProgram.setUniform("dlight.diffuse", lightColor);
-		shaderProgram.setUniform("dlight.direction", glm::vec3(1.0f, 1.0f, 1.0f));
+		shaderProgram.setUniform("dlight.ambient", vec3Convert(dambient));
+		shaderProgram.setUniform("dlight.specular", vec3Convert(dspecular)); 
+		shaderProgram.setUniform("dlight.diffuse", vec3Convert(ddiffuse)); 
+		shaderProgram.setUniform("dlight.direction", glm::make_vec3(ddir));
 
-		shaderProgram.setUniform("plight.position", lightPos);
-		shaderProgram.setUniform("plight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-		shaderProgram.setUniform("plight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		shaderProgram.setUniform("plight.diffuse", lightColor);
+		shaderProgram.setUniform("plight.position", glm::make_vec3(ppos));
+		shaderProgram.setUniform("plight.ambient", vec3Convert(pambient));
+		shaderProgram.setUniform("plight.specular", vec3Convert(pspecular)); 
+		shaderProgram.setUniform("plight.diffuse", vec3Convert(pdiffuse));
 		shaderProgram.setUniform("plight.constant", 1.0f);
 		shaderProgram.setUniform("plight.linear", 0.07f);
 		shaderProgram.setUniform("plight.quad", 0.017f);
@@ -228,12 +240,16 @@ int main()
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
+	glfwDestroyWindow(pWindow);
 	glfwTerminate();
 	return 0;
 }
 
 void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_color)
 {
+	//ImFont* font1 = io.Fonts->AddFontDefault();
+	//ImFont* font2 = io.Fonts->AddFontFromFileTTF("D:/OpenGL/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
+
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -246,6 +262,9 @@ void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_c
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		static float f = 0.0f;
 		static int counter = 0;
+		bool show_dirlight=false;
+		bool show_plight=false;
+		bool show_slight=false;
 
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
@@ -261,10 +280,67 @@ void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_c
 		ImGui::SameLine();
 		ImGui::Text("counter = %d", counter);
 
+		ImGui::Text("Hello!");
+		ImGui::PushFont(font2);
+		ImGui::Text("Hello!");
+		ImGui::PopFont();
+		if (ImGui::CollapsingHeader("Asset"))
+		{
+			static int selected = -1;
+			for (int n = 0; n < 5; n++)
+			{
+				char buf[32];
+				sprintf_s(buf, "Object %d", n);
+				if (ImGui::Selectable(buf, selected == n))
+					selected = n;
+			}
+		}
+		if (ImGui::CollapsingHeader("Lights"))
+		{
+			static int selected = -1;
+				char buf[32];
+				sprintf_s(buf, "Spot Light", 0);
+				if (ImGui::Selectable(buf, selected == 0))
+				{
+					selected = 0;
+				}
+				sprintf_s(buf, "Directional Light", 1);
+				if (ImGui::Selectable(buf, selected == 1))
+				{
+					selected = 1;
+				}
+				sprintf_s(buf, "Point Light", 2);
+				if (ImGui::Selectable(buf, selected == 2))
+				{
+					selected = 2;
+				}
+				if (selected == 1)
+					show_dirlight = true;
+		}
 		if (ImGui::CollapsingHeader("Directional Light"))
 		{
-
+			ImGui::DragFloat3("Direction", ddir, 0.01f, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Ambient", (float*)&dambient);
+			ImGui::ColorEdit3("Specular",(float*)&dspecular);
+			ImGui::ColorEdit3("Diffuse",(float*)&ddiffuse);
 		}
+		if (ImGui::CollapsingHeader("Point Light"))
+		{
+			ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Specular", (float*)&pspecular);
+			ImGui::ColorEdit3("Diffuse", (float*)&pdiffuse);
+			ImGui::ColorEdit3("Ambient", (float*)&pambient);
+		}
+
+		/*
+		if (ImGui::CollapsingHeader("Directional Light"))
+		{ 
+			ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Ambient", pambient);
+			ImGui::ColorEdit3("Specular", pspecular);
+			ImGui::ColorEdit3("Diffuse", pdiffuse);
+		}
+		*/
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
@@ -278,6 +354,46 @@ void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_c
 			show_another_window = false;
 		ImGui::End();
 	}
+	
+
+	ImGui::Begin("Hello None");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Text("Hello!");
+	ImGui::PushFont(font2);
+	ImGui::Text("Hello!");
+	ImGui::PopFont();
+	if (show_dirlight==true)
+	{
+		ImGui::DragFloat3("Direction", ddir, 0.01f, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Ambient", (float*)&dambient);
+		ImGui::ColorEdit3("Specular", (float*)&dspecular);
+		ImGui::ColorEdit3("Diffuse", (float*)&ddiffuse);
+	}
+	if (show_plight==true )
+	{
+		ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Specular", (float*)&pspecular);
+		ImGui::ColorEdit3("Diffuse", (float*)&pdiffuse);
+		ImGui::ColorEdit3("Ambient", (float*)&pambient);
+	}
+
+	/*
+	if (ImGui::CollapsingHeader("Directional Light"))
+	{
+		ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Ambient", pambient);
+		ImGui::ColorEdit3("Specular", pspecular);
+		ImGui::ColorEdit3("Diffuse", pdiffuse);
+	}
+	*/
+
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::End();
+}
+
+glm::vec3 vec3Convert(ImVec4 var)
+{
+	glm::vec3 convert(var.x, var.y, var.z);
+	return convert;
 }
 
 bool initOpenGL()
@@ -340,8 +456,12 @@ bool initOpenGL()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	font1 = io.Fonts->AddFontDefault();
+	font2 = io.Fonts->AddFontFromFileTTF("D:/OpenGL/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
