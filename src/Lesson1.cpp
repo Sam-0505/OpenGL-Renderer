@@ -10,11 +10,11 @@
 #include "Texture2D.h"
 #include "Camera.h"
 #include "Mesh.h"
-#include "ImGui/imconfig.h"
-#include "ImGui/imgui_impl_opengl3.h"
-#include "ImGui/imgui_impl_glfw.h"
-#include "ImGui/imgui_impl_opengl3.cpp"
-#include "ImGui/imgui_impl_glfw.cpp"
+#include "Interface.h"
+
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image/stb_image_write.h"
 
 // Global Variables
 OrbitCamera orbitCamera;
@@ -24,8 +24,8 @@ int pwidth = 1024;
 bool gFullScreen = false;
 GLFWwindow* pWindow ;
 bool gWireframe;
-const char* glsl_version = "#version 330 core";
 bool pan = false;
+bool show_UI = true;
 
 //const float MOUSE_SENSITIVITY = 0.25f;
 float gRadius = 10.0f;
@@ -33,16 +33,6 @@ float gYaw = 0.0f;
 float gPitch = 0.0f;
 double lastmouseX = pwidth / 2.0; 
 double lastmouseY = pheight / 2.0;
-
-ImVec4 dambient= ImVec4(0.2f,0.2f,0.2f,1.0f);
-ImVec4 dspecular = ImVec4(1.0f,1.0f,1.0f,1.0f);
-ImVec4 ddiffuse= ImVec4( 1.0f,1.0f,1.0f,1.0f);
-float ddir[] = { 1.0f,1.0f,0.0f};
-
-ImVec4 pambient= ImVec4(0.2f,0.2f,0.2f,1.0f);
-ImVec4 pspecular= ImVec4(1.0f,1.0f,1.0f,1.0f);
-ImVec4 pdiffuse= ImVec4(1.0f,1.0f,1.0f,1.0f);
-float ppos[] = {1.0f,1.0f,0.0f};
 
 //FPSCamera fpsCamera(glm::vec3(0.0f, 0.0f, 5.0f));
 const double ZOOM_SENSITIVITY = -3.0;
@@ -57,10 +47,8 @@ void glfw_onMouseMove(GLFWwindow* window, double posX, double posY);
 void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff);
 void showFPS(GLFWwindow* window);
 bool initOpenGL();
-void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_color);
-glm::vec3 vec3Convert(ImVec4 var);
-ImFont* font1;
-ImFont* font2;
+void saveImage();
+
 //-----------------------------------------------------------------------------
 // Main Application Entry Point
 //-----------------------------------------------------------------------------
@@ -71,7 +59,10 @@ int main()
 		std::cerr << "GLFW initialization failed" << std::endl;
 		return -1;
 	}
-	
+
+	Interface UI;
+	UI.initImGui(pWindow);
+
 	const int modelNum = 6;
 	Mesh mesh[modelNum];
 	Texture2D texture2D[modelNum];
@@ -94,7 +85,7 @@ int main()
 	lightMesh.loadOBJ("D:/OpenGL/Project1/models/crate.obj");
 
 	//Model Position
-	glm::vec3 modPos[] = 
+	glm::vec3 modPos[] =
 	{
 		glm::vec3(-2.5f, 1.0f, 0.0f),	// crate1
 		glm::vec3(2.5f, 1.0f, 0.0f),	// crate2
@@ -105,7 +96,7 @@ int main()
 	};
 
 	// Model scale
-	glm::vec3 modScale[] = 
+	glm::vec3 modScale[] =
 	{
 		glm::vec3(1.0f, 1.0f, 1.0f),	// crate1
 		glm::vec3(1.0f, 1.0f, 1.0f),	// crate2
@@ -119,18 +110,15 @@ int main()
 	lightProgram.loadShaders("D:/OpenGL/Project1/shaders/light.vert", "D:/OpenGL/Project1/shaders/light.frag");
 
 	ShaderProgram shaderProgram;
-	shaderProgram.loadShaders("D:/OpenGL/Project1/shaders/basic.vert","D:/OpenGL/Project1/shaders/basic.frag");
+	shaderProgram.loadShaders("D:/OpenGL/Project1/shaders/basic.vert", "D:/OpenGL/Project1/shaders/basic.frag");
 
 	double lastTime = glfwGetTime();
 	float cubeAngle = 0.0f;
 	float lightAngle = 0.0f;
-	
-	glm::vec3 lightPos = glm::vec3(0.0f,1.0f,10.0f);
-	glm::vec3 lightColor= glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 viewPos = orbitCamera.getViewPos();
 
-	ImFont* font1;
-	ImFont* font2;
+	glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 10.0f);
+	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 viewPos = orbitCamera.getViewPos();
 
 	// Our state
 	bool show_demo_window = true;
@@ -139,22 +127,26 @@ int main()
 
 	while (!glfwWindowShouldClose(pWindow))
 	{
+		if(!show_UI)
+		saveImage();
+
 		showFPS(pWindow);
 
 		double currentTime = glfwGetTime();
 		double deltaTime = currentTime - lastTime;
-		
+
 		glfwPollEvents();
 		//update(deltaTime,&lastmouseX,&lastmouseY);
-
-		UILoader(show_demo_window, show_another_window, clear_color);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//texture2D1.bind(0);
 
+		if (show_UI)
+			UI.UILoader();
+
 		glm::mat4 model, view, projection;
-		
+
 		orbitCamera.setRadius(gRadius);
 		orbitCamera.rotate(gYaw, gPitch);
 
@@ -175,29 +167,7 @@ int main()
 		shaderProgram.setUniform("projection", projection);
 		shaderProgram.setUniform("viewPos", viewPos);
 
-		shaderProgram.setUniform("dlight.ambient", vec3Convert(dambient));
-		shaderProgram.setUniform("dlight.specular", vec3Convert(dspecular)); 
-		shaderProgram.setUniform("dlight.diffuse", vec3Convert(ddiffuse)); 
-		shaderProgram.setUniform("dlight.direction", glm::make_vec3(ddir));
-
-		shaderProgram.setUniform("plight.position", glm::make_vec3(ppos));
-		shaderProgram.setUniform("plight.ambient", vec3Convert(pambient));
-		shaderProgram.setUniform("plight.specular", vec3Convert(pspecular)); 
-		shaderProgram.setUniform("plight.diffuse", vec3Convert(pdiffuse));
-		shaderProgram.setUniform("plight.constant", 1.0f);
-		shaderProgram.setUniform("plight.linear", 0.07f);
-		shaderProgram.setUniform("plight.quad", 0.017f);
-
-		shaderProgram.setUniform("slight.position", lightPos);
-		shaderProgram.setUniform("slight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-		shaderProgram.setUniform("slight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		shaderProgram.setUniform("slight.diffuse", lightColor);
-		shaderProgram.setUniform("slight.direction", glm::vec3(0.0f, 0.0f, -1.0f));
-		shaderProgram.setUniform("slight.cosInnerCone", cos(glm::radians(30.0f)));
-		shaderProgram.setUniform("slight.cosOuterCone", cos(glm::radians(60.0f)));
-		shaderProgram.setUniform("slight.constant", 1.0f);
-		shaderProgram.setUniform("slight.linear", 0.07f);
-		shaderProgram.setUniform("slight.quad", 0.017f);
+		UI.setShaderValues(&shaderProgram);
 
 		for (int i = 0; i < modelNum; i++)
 		{
@@ -214,7 +184,7 @@ int main()
 			texture2D[i].unbind(0);
 		}
 
-		lightAngle+= (float)deltaTime * 50.0f;
+		lightAngle += (float)deltaTime * 50.0f;
 		//lightPos.x = 8.0f * sin(glm::radians(lightAngle));
 		model = glm::translate(glm::mat4(), lightPos);
 		lightProgram.use();
@@ -222,178 +192,19 @@ int main()
 		lightProgram.setUniform("lightColor", lightColor);
 		lightProgram.setUniform("view", view);
 		lightProgram.setUniform("projection", projection);
-		lightProgram.setUniform("lightPos",lightPos);
+		lightProgram.setUniform("lightPos", lightPos);
 		lightMesh.draw();
 
-		// Rendering
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		if (show_UI)
+			UI.draw();
 
-		glfwSwapBuffers(pWindow); 
-		glfwPollEvents();
+		glfwSwapBuffers(pWindow);
 
 		lastTime = currentTime;
 	}
-
-	// Cleanup
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	glfwDestroyWindow(pWindow);
 	glfwTerminate();
+
 	return 0;
-}
-
-void UILoader(bool& show_demo_window, bool& show_another_window, ImVec4& clear_color)
-{
-	//ImFont* font1 = io.Fonts->AddFontDefault();
-	//ImFont* font2 = io.Fonts->AddFontFromFileTTF("D:/OpenGL/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
-
-	// Start the Dear ImGui frame
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (show_demo_window)
-		ImGui::ShowDemoWindow(&show_demo_window);
-
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		static float f = 0.0f;
-		static int counter = 0;
-		bool show_dirlight=false;
-		bool show_plight=false;
-		bool show_slight=false;
-
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &show_another_window);
-
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-
-		ImGui::Text("Hello!");
-		ImGui::PushFont(font2);
-		ImGui::Text("Hello!");
-		ImGui::PopFont();
-		if (ImGui::CollapsingHeader("Asset"))
-		{
-			static int selected = -1;
-			for (int n = 0; n < 5; n++)
-			{
-				char buf[32];
-				sprintf_s(buf, "Object %d", n);
-				if (ImGui::Selectable(buf, selected == n))
-					selected = n;
-			}
-		}
-		if (ImGui::CollapsingHeader("Lights"))
-		{
-			static int selected = -1;
-				char buf[32];
-				sprintf_s(buf, "Spot Light", 0);
-				if (ImGui::Selectable(buf, selected == 0))
-				{
-					selected = 0;
-				}
-				sprintf_s(buf, "Directional Light", 1);
-				if (ImGui::Selectable(buf, selected == 1))
-				{
-					selected = 1;
-				}
-				sprintf_s(buf, "Point Light", 2);
-				if (ImGui::Selectable(buf, selected == 2))
-				{
-					selected = 2;
-				}
-				if (selected == 1)
-					show_dirlight = true;
-		}
-		if (ImGui::CollapsingHeader("Directional Light"))
-		{
-			ImGui::DragFloat3("Direction", ddir, 0.01f, 0.0f, 1.0f);
-			ImGui::ColorEdit3("Ambient", (float*)&dambient);
-			ImGui::ColorEdit3("Specular",(float*)&dspecular);
-			ImGui::ColorEdit3("Diffuse",(float*)&ddiffuse);
-		}
-		if (ImGui::CollapsingHeader("Point Light"))
-		{
-			ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
-			ImGui::ColorEdit3("Specular", (float*)&pspecular);
-			ImGui::ColorEdit3("Diffuse", (float*)&pdiffuse);
-			ImGui::ColorEdit3("Ambient", (float*)&pambient);
-		}
-
-		/*
-		if (ImGui::CollapsingHeader("Directional Light"))
-		{ 
-			ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
-			ImGui::ColorEdit3("Ambient", pambient);
-			ImGui::ColorEdit3("Specular", pspecular);
-			ImGui::ColorEdit3("Diffuse", pdiffuse);
-		}
-		*/
-
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::End();
-	
-	// 3. Show another simple window.
-	if (show_another_window)
-	{
-		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		ImGui::Text("Hello from another window!");
-		if (ImGui::Button("Close Me"))
-			show_another_window = false;
-		ImGui::End();
-	}
-	
-
-	ImGui::Begin("Hello None");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::Text("Hello!");
-	ImGui::PushFont(font2);
-	ImGui::Text("Hello!");
-	ImGui::PopFont();
-	if (show_dirlight==true)
-	{
-		ImGui::DragFloat3("Direction", ddir, 0.01f, 0.0f, 1.0f);
-		ImGui::ColorEdit3("Ambient", (float*)&dambient);
-		ImGui::ColorEdit3("Specular", (float*)&dspecular);
-		ImGui::ColorEdit3("Diffuse", (float*)&ddiffuse);
-	}
-	if (show_plight==true )
-	{
-		ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
-		ImGui::ColorEdit3("Specular", (float*)&pspecular);
-		ImGui::ColorEdit3("Diffuse", (float*)&pdiffuse);
-		ImGui::ColorEdit3("Ambient", (float*)&pambient);
-	}
-
-	/*
-	if (ImGui::CollapsingHeader("Directional Light"))
-	{
-		ImGui::DragFloat3("Position", ppos, 0.01f, 0.0f, 1.0f);
-		ImGui::ColorEdit3("Ambient", pambient);
-		ImGui::ColorEdit3("Specular", pspecular);
-		ImGui::ColorEdit3("Diffuse", pdiffuse);
-	}
-	*/
-
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	ImGui::End();
-}
-
-glm::vec3 vec3Convert(ImVec4 var)
-{
-	glm::vec3 convert(var.x, var.y, var.z);
-	return convert;
 }
 
 bool initOpenGL()
@@ -452,25 +263,6 @@ bool initOpenGL()
 
 	glEnable(GL_DEPTH_TEST);
 
-	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-	font1 = io.Fonts->AddFontDefault();
-	font2 = io.Fonts->AddFontFromFileTTF("D:/OpenGL/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
-
-	// Setup Platform/Renderer bindings
-	ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
-	ImGui_ImplOpenGL3_Init(glsl_version);
-
 	return true;
 }
 
@@ -486,6 +278,14 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 	}
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		show_UI = false;
+	}
+	if (key == GLFW_KEY_S && action == GLFW_RELEASE)
+	{
+		show_UI = true;
+	}
 }
 
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
@@ -560,6 +360,22 @@ void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff)
 	//fov = glm::clamp(fov, 1.0, 120.0);
 
 	//fpsCamera.setFOV((float)fov);
+}
+
+void saveImage() 
+{
+	int width, height;
+	GLsizei nrChannels = 3;
+	GLsizei stride = nrChannels * pwidth;
+	stride += (stride % 4) ? (4 - stride % 4) : 0;
+	GLsizei bufferSize = stride * pheight;
+	std::vector<char> buffer(bufferSize);
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
+	glReadBuffer(GL_FRONT);
+	glReadPixels(0, 0, pwidth, pheight, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+	stbi_flip_vertically_on_write(true);
+	const char* filepath = "D:/OpenGL/image.png";
+	stbi_write_png(filepath, pwidth, pheight, nrChannels, buffer.data(), stride);
 }
 
 //-----------------------------------------------------------------------------

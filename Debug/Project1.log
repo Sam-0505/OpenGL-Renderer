@@ -1,12 +1,6 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(453,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
   Lesson1.cpp
-D:\OpenGL\Project1\src\Lesson1.cpp(133,10): warning C4101: 'font2': unreferenced local variable
-D:\OpenGL\Project1\src\Lesson1.cpp(132,10): warning C4101: 'font1': unreferenced local variable
-D:\OpenGL\Project1\src\Lesson1.cpp(302,34): warning C4474: 'sprintf_s' : too many arguments passed for format string
-D:\OpenGL\Project1\src\Lesson1.cpp(302,34): message : placeholders and their parameters expect 0 variadic arguments, but 1 were provided
-D:\OpenGL\Project1\src\Lesson1.cpp(307,41): warning C4474: 'sprintf_s' : too many arguments passed for format string
-D:\OpenGL\Project1\src\Lesson1.cpp(307,41): message : placeholders and their parameters expect 0 variadic arguments, but 1 were provided
-D:\OpenGL\Project1\src\Lesson1.cpp(312,35): warning C4474: 'sprintf_s' : too many arguments passed for format string
-D:\OpenGL\Project1\src\Lesson1.cpp(312,35): message : placeholders and their parameters expect 0 variadic arguments, but 1 were provided
-D:\OpenGL\Project1\src\Lesson1.cpp(556,17): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL\Project1\src\Lesson1.cpp(356,17): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL\Project1\src\Lesson1.cpp(367,13): warning C4101: 'height': unreferenced local variable
+D:\OpenGL\Project1\src\Lesson1.cpp(367,6): warning C4101: 'width': unreferenced local variable
   Project1.vcxproj -> D:\OpenGL\Project1\.\bin\Project1.exe
