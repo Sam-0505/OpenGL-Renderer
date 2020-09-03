@@ -29,7 +29,6 @@ struct SpotLight
 	vec3 direction;
 	float cosInnerCone;
 	float cosOuterCone;
-	int on;
 
 	float constant;
 	float linear;
@@ -49,9 +48,12 @@ in vec3 Normal;
 in vec3 FragPos;
 out vec4 frag_color;
 
-uniform DirLight dlight;
-uniform PointLight plight;
-uniform SpotLight slight;
+uniform int Dir_num;
+uniform int Point_num;
+uniform int Spot_num;
+uniform DirLight dlight[50];
+uniform PointLight plight[50];
+uniform SpotLight slight[50];
 uniform Material material;
 uniform vec3 viewPos;
 
@@ -61,78 +63,93 @@ vec3 calcSpotLight(vec3 normal);
 
 void main()
 {
-	//diffuse
+	//diffuse 
 	vec3 normal=normalize(Normal);
-	vec3 result=calcDirLight(normal)+calcPointLight(normal);
+	vec3 result=calcPointLight(normal)+calcSpotLight(normal)+calcDirLight(normal);
 	frag_color=vec4(result,1.0f);
 }
 
 vec3 calcDirLight(vec3 normal)
 {
-	//ambient
-	vec3 ambient=dlight.ambient*material.ambient*vec3(texture(material.diffuseMap,TexCoord));
+	vec3 effect;
+	for(int i=0;i<Dir_num;i++)
+	{
+		//ambient
+		vec3 ambient=dlight[i].ambient*material.ambient*vec3(texture(material.diffuseMap,TexCoord));
 
-	//diffuse
-	vec3 lightDir=dlight.direction;
-	float NdotL=max(dot(normal,lightDir),0.0f);
-	vec3 diffuse=NdotL*vec3(texture(material.diffuseMap,TexCoord))*dlight.diffuse;
+		//diffuse
+		vec3 lightDir=dlight[i].direction;
+		float NdotL=max(dot(normal,lightDir),0.0f);
+		vec3 diffuse=NdotL*vec3(texture(material.diffuseMap,TexCoord))*dlight[i].diffuse;
 
-	//specular
-	vec3 viewDir=normalize(viewPos-FragPos);
-	vec3 halfvector=normalize(lightDir+viewDir);
-	float HdotN=max(dot(normal,halfvector),0.0f);
-	vec3 specular=dlight.specular*material.specular*pow(HdotN,material.shininess);
+		//specular
+		vec3 viewDir=normalize(viewPos-FragPos);
+		vec3 halfvector=normalize(lightDir+viewDir);
+		float HdotN=max(dot(normal,halfvector),0.0f);
+		vec3 specular=dlight[i].specular*material.specular*pow(HdotN,material.shininess);
 
-	return ambient+diffuse+specular;
+		effect+=ambient+specular+diffuse;
+	}
+	return effect;
 }
 
 vec3 calcPointLight(vec3 normal)
 {
+	vec3 effect;
+	for(int i=0;i<Point_num;i++)
+	{
 	//ambient
-	vec3 ambient=plight.ambient*material.ambient*vec3(texture(material.diffuseMap,TexCoord));
+	vec3 ambient=plight[0].ambient*material.ambient*vec3(texture(material.diffuseMap,TexCoord));
 
-	float lightDist=length(plight.position-FragPos);
-	float atten=1/(plight.constant+plight.linear*lightDist+plight.quad*lightDist*lightDist);
+	float lightDist=length(plight[0].position-FragPos);
+	float atten=1/(plight[0].constant+plight[0].linear*lightDist+plight[0].quad*lightDist*lightDist);
 
 	//diffuse
-	vec3 lightDir=normalize(plight.position-FragPos);
+	vec3 lightDir=normalize(plight[0].position-FragPos);
 	float NdotL=max(dot(normal,lightDir),0.0f);
-	vec3 diffuse=NdotL*vec3(texture(material.diffuseMap,TexCoord))*dlight.diffuse*atten;
+	vec3 diffuse=NdotL*vec3(texture(material.diffuseMap,TexCoord))*plight[0].diffuse*atten;
 
 	//specular
 	vec3 viewDir=normalize(viewPos-FragPos);
 	vec3 halfvector=normalize(lightDir+viewDir);
 	float HdotN=max(dot(normal,halfvector),0.0f);
-	vec3 specular=dlight.specular*material.specular*pow(HdotN,material.shininess)*atten;
+	vec3 specular=plight[0].specular*material.specular*pow(HdotN,material.shininess)*atten;
 
-	return ambient+diffuse+specular;
+	effect+=ambient+specular+diffuse;
+	}
+	return effect;
 }
 
 vec3 calcSpotLight(vec3 normal)
 {
-	//ambient
-	vec3 ambient=slight.ambient*material.ambient*vec3(texture(material.diffuseMap,TexCoord));
+	vec3 effect;
+	for(int i=0;i<Spot_num;i++)
+	{
+		//ambient
+		vec3 ambient=slight[i].ambient*material.ambient*vec3(texture(material.diffuseMap,TexCoord));
 	
-	//diffuse
-	vec3 lightDir=normalize(slight.position-FragPos);
-	vec3 spotDir=normalize(slight.direction);
-	float NdotL=max(dot(normal,lightDir),0.0f);
-	vec3 diffuse=NdotL*vec3(texture(material.diffuseMap,TexCoord))*dlight.diffuse;
+		//diffuse
+		vec3 lightDir=normalize(slight[i].position-FragPos);
+		vec3 spotDir=normalize(slight[i].direction);
+		float NdotL=max(dot(normal,lightDir),0.0f);
+		vec3 diffuse=NdotL*vec3(texture(material.diffuseMap,TexCoord))*slight[i].diffuse;
 
-	//specular
-	vec3 viewDir=normalize(viewPos-FragPos);
-	vec3 halfvector=normalize(lightDir+viewDir);
-	float HdotN=max(dot(normal,halfvector),0.0f);
-	vec3 specular=dlight.specular*material.specular*pow(HdotN,material.shininess);
+		//specular
+		vec3 viewDir=normalize(viewPos-FragPos);
+		vec3 halfvector=normalize(lightDir+viewDir);
+		float HdotN=max(dot(normal,halfvector),0.0f);
+		vec3 specular=slight[i].specular*material.specular*pow(HdotN,material.shininess);
 
-	float cosDir=dot(lightDir,spotDir);
-	float spotIntensity=smoothstep(slight.cosInnerCone,slight.cosOuterCone,cosDir);
+		float cosDir=dot(lightDir,spotDir);
+		float spotIntensity=smoothstep(slight[i].cosInnerCone,slight[i].cosOuterCone,cosDir);
 	
-	float lightDist=length(slight.position-FragPos);
-	float atten=1/(slight.constant+slight.linear*lightDist+slight.quad*lightDist*lightDist);
+		float lightDist=length(slight[i].position-FragPos);
+		float atten=1/(slight[i].constant+slight[i].linear*lightDist+slight[i].quad*lightDist*lightDist);
 
-	diffuse*=atten*spotIntensity;
-	specular*=atten*spotIntensity;
-
-	return ambient+diffuse+specular;
+		diffuse*=atten*spotIntensity;
+		specular*=atten*spotIntensity;
+	
+		effect+=ambient+diffuse+specular;
+	}
+	return effect;
 }

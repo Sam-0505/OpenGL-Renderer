@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <vector>
 #define	GLEW_STATIC
 #include "GL/glew.h"// Important - this header must come before glfw3 header
 #include "GLFW/glfw3.h"
@@ -176,7 +177,7 @@ int main()
 
 			shaderProgram.setUniform("material.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
 			shaderProgram.setUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-			shaderProgram.setUniform("material.diffuseMap", 0);
+			shaderProgram.setUniformSampler("material.diffuseMap", 0);
 			shaderProgram.setUniform("material.shininess", 32.0f);
 
 			texture2D[i].bind(0);
