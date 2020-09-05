@@ -63,11 +63,15 @@ int main()
 
 	Interface UI;
 	UI.initImGui(pWindow);
-
-	const int modelNum = 6;
-	Mesh mesh[modelNum];
-	Texture2D texture2D[modelNum];
-
+	
+	Mesh mesh0, mesh1, mesh2, mesh3, mesh4, mesh5;
+	std::vector<Mesh> mesh;
+	mesh.push_back(mesh0);
+	mesh.push_back(mesh1);
+	mesh.push_back(mesh2);
+	mesh.push_back(mesh3);
+	mesh.push_back(mesh4);
+	mesh.push_back(mesh5);
 	mesh[0].loadOBJ("D:/OpenGL/Project1/models/crate.obj");
 	mesh[1].loadOBJ("D:/OpenGL/Project1/models/woodcrate.obj");
 	mesh[2].loadOBJ("D:/OpenGL/Project1/models/robot.obj");
@@ -75,6 +79,14 @@ int main()
 	mesh[4].loadOBJ("D:/OpenGL/Project1/models/bowling_pin.obj");
 	mesh[5].loadOBJ("D:/OpenGL/Project1/models/bunny.obj");
 
+	Texture2D texture0, texture1, texture2, texture3, texture4, texture5;
+	std::vector<Texture2D> texture2D;
+	texture2D.push_back(texture0);
+	texture2D.push_back(texture1);
+	texture2D.push_back(texture2);
+	texture2D.push_back(texture3);
+	texture2D.push_back(texture4);
+	texture2D.push_back(texture5);
 	texture2D[0].loadTexture("D:/OpenGL/Project1/textures/crate.jpg", true);
 	texture2D[1].loadTexture("D:/OpenGL/Project1/textures/woodcrate_diffuse.jpg", true);
 	texture2D[2].loadTexture("D:/OpenGL/Project1/textures/robot_diffuse.jpg", true);
@@ -170,7 +182,7 @@ int main()
 
 		UI.setShaderValues(&shaderProgram);
 
-		for (int i = 0; i < modelNum; i++)
+		for (int i = 0; i < mesh.size(); i++)
 		{
 			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
 			shaderProgram.setUniform("model", model);
