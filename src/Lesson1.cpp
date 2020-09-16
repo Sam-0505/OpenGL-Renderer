@@ -27,6 +27,7 @@ GLFWwindow* pWindow ;
 bool gWireframe;
 bool pan = false;
 bool show_UI = true;
+bool showOpen = false;
 
 //const float MOUSE_SENSITIVITY = 0.25f;
 float gRadius = 10.0f;
@@ -63,8 +64,8 @@ int main()
 
 	Interface UI;
 	UI.initImGui(pWindow);
-	
-	Mesh mesh0, mesh1, mesh2, mesh3, mesh4, mesh5;
+	/*
+	Mesh mesh0, mesh1, mesh2, mesh3, mesh4, mesh5,mesh6;
 	std::vector<Mesh> mesh;
 	mesh.push_back(mesh0);
 	mesh.push_back(mesh1);
@@ -72,14 +73,25 @@ int main()
 	mesh.push_back(mesh3);
 	mesh.push_back(mesh4);
 	mesh.push_back(mesh5);
+	//mesh.push_back(mesh6);
+	*/
+	int c = 6;
+	Mesh mesh[20];
 	mesh[0].loadOBJ("D:/OpenGL/Project1/models/crate.obj");
 	mesh[1].loadOBJ("D:/OpenGL/Project1/models/woodcrate.obj");
 	mesh[2].loadOBJ("D:/OpenGL/Project1/models/robot.obj");
 	mesh[3].loadOBJ("D:/OpenGL/Project1/models/floor.obj");
 	mesh[4].loadOBJ("D:/OpenGL/Project1/models/bowling_pin.obj");
 	mesh[5].loadOBJ("D:/OpenGL/Project1/models/bunny.obj");
+	mesh[0].name="crate";
+	mesh[1].name="woodcrate";
+	mesh[2].name="robot.obj";
+	mesh[3].name="floor.obj";
+	mesh[4].name="bowling_pin";
+	mesh[5].name="bunny";
 
-	Texture2D texture0, texture1, texture2, texture3, texture4, texture5;
+	/*
+	Texture2D texture0, texture1, texture2, texture3, texture4, texture5, texture6;
 	std::vector<Texture2D> texture2D;
 	texture2D.push_back(texture0);
 	texture2D.push_back(texture1);
@@ -87,6 +99,9 @@ int main()
 	texture2D.push_back(texture3);
 	texture2D.push_back(texture4);
 	texture2D.push_back(texture5);
+	//texture2D.push_back(texture6);
+	*/
+	Texture2D texture2D[20];
 	texture2D[0].loadTexture("D:/OpenGL/Project1/textures/crate.jpg", true);
 	texture2D[1].loadTexture("D:/OpenGL/Project1/textures/woodcrate_diffuse.jpg", true);
 	texture2D[2].loadTexture("D:/OpenGL/Project1/textures/robot_diffuse.jpg", true);
@@ -98,26 +113,23 @@ int main()
 	lightMesh.loadOBJ("D:/OpenGL/Project1/models/crate.obj");
 
 	//Model Position
-	glm::vec3 modPos[] =
-	{
-		glm::vec3(-2.5f, 1.0f, 0.0f),	// crate1
-		glm::vec3(2.5f, 1.0f, 0.0f),	// crate2
-		glm::vec3(0.0f, 1.0f, 0.0f),	// robot
-		glm::vec3(0.0f, 0.0f, 0.0f),		// floor
-		glm::vec3(0.0f, 0.0f, 2.0f),	// pin
-		glm::vec3(-2.0f, 0.0f, 2.0f)	// bunny
-	};
+	glm::vec3 modPos[20];
+	modPos[0]=glm::vec3(-2.5f, 1.0f, 0.0f);	// crate1
+	modPos[1]=glm::vec3(2.5f, 1.0f, 0.0f);	// crate2
+	modPos[2]=glm::vec3(0.0f, 1.0f, 0.0f);	// robot
+	modPos[3]=glm::vec3(0.0f, 0.0f, 0.0f);		// floor
+	modPos[4]=glm::vec3(0.0f, 0.0f, 2.0f);	// pin
+	modPos[5]=glm::vec3(-2.0f, 0.0f, 2.0f);// bunny
 
 	// Model scale
-	glm::vec3 modScale[] =
-	{
-		glm::vec3(1.0f, 1.0f, 1.0f),	// crate1
-		glm::vec3(1.0f, 1.0f, 1.0f),	// crate2
-		glm::vec3(1.0f, 1.0f, 1.0f),	// robot
-		glm::vec3(10.0f, 1.0f, 10.0f),	// floor
-		glm::vec3(0.1f, 0.1f, 0.1f),	// pin
-		glm::vec3(0.7f, 0.7f, 0.7f)		// bunny
-	};
+	glm::vec3 modScale[20];
+	modScale[0]=glm::vec3(1.0f, 1.0f, 1.0f);	// crate1
+	modScale[1]=glm::vec3(1.0f, 1.0f, 1.0f);	// crate2
+	modScale[2]=glm::vec3(1.0f, 1.0f, 1.0f);	// robot
+	modScale[3]=glm::vec3(10.0f, 1.0f, 10.0f);	// floor
+	modScale[4]=glm::vec3(0.1f, 0.1f, 0.1f);	// pin
+	modScale[5]=glm::vec3(0.7f, 0.7f, 0.7f);	// bunny
+
 
 	ShaderProgram lightProgram;
 	lightProgram.loadShaders("D:/OpenGL/Project1/shaders/light.vert", "D:/OpenGL/Project1/shaders/light.frag");
@@ -141,7 +153,7 @@ int main()
 	while (!glfwWindowShouldClose(pWindow))
 	{
 		if(!show_UI)
-		saveImage();
+			saveImage();
 
 		showFPS(pWindow);
 
@@ -156,7 +168,29 @@ int main()
 		//texture2D1.bind(0);
 
 		if (show_UI)
-			UI.UILoader();
+			UI.UILoader(mesh,modPos,modScale,c);
+
+		if (showOpen)
+		{
+			std::string file[2];
+			int isImport= UI.importFile(file);
+			if (isImport)
+			{
+				std::cout << "Hey" << std::endl;
+				std::cout << c << std::endl;
+				std::cout << file[0] << std::endl;
+				mesh[c].loadOBJ(file[0]);
+				std::cout << c << std::endl;
+				std::cout << file[1] << std::endl;
+				texture2D[c].loadTexture(file[1], true);
+				c++;
+				std::cout << c << std::endl;
+				modPos[6]=glm::vec3(0.0f, 5.0f, 0.0f);
+				modScale[6]=glm::vec3(1.0f);
+				showOpen = false;
+			}
+		}
+		
 
 		glm::mat4 model, view, projection;
 
@@ -182,7 +216,7 @@ int main()
 
 		UI.setShaderValues(&shaderProgram);
 
-		for (int i = 0; i < mesh.size(); i++)
+		for (int i = 0; i < c; i++)
 		{
 			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
 			shaderProgram.setUniform("model", model);
@@ -298,6 +332,10 @@ void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode)
 	if (key == GLFW_KEY_S && action == GLFW_RELEASE)
 	{
 		show_UI = true;
+	}
+	if (key == GLFW_KEY_I && action == GLFW_PRESS)
+	{
+		showOpen = true;
 	}
 }
 

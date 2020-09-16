@@ -6,7 +6,8 @@
 Mesh::Mesh()
 	:mLoaded(false),
 	mVAO(0),
-	mVBO(0)
+	mVBO(0),
+	name("")
 {
 }
 
@@ -33,6 +34,7 @@ bool Mesh::loadOBJ(const std::string& filename)
 	{
 		if (filename.find(".obj") == std::string::npos)
 		{
+			std::cout << filename << std::endl;
 			std::cerr << "File cannot be found" << std::endl;
 		}
 		else

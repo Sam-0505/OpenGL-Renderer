@@ -8,6 +8,8 @@
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.cpp"
 #include "ImGui/imgui_impl_glfw.cpp"
+#include <sstream>
+#include <fstream>
 
 Interface::Interface()
 {
@@ -76,7 +78,7 @@ bool Interface::initImGui(GLFWwindow* pWindow)
 	return true;
 }
 
-void Interface::UILoader()
+void Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],int c)
 {
 	//ImFont* font1 = io.Fonts->AddFontDefault();
 	//ImFont* font2 = io.Fonts->AddFontFromFileTTF("D:/OpenGL/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
@@ -86,22 +88,12 @@ void Interface::UILoader()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
+	ImGui::Begin("My First Tool");
 	bool show_demo_window = true;
 	bool show_another_window = true;
 	ImVec4 clear_color = ImVec4(1.0f,1.0f,1.0f,1.0f);
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	ImGui::ShowDemoWindow(&show_demo_window);
-
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-	static float f = 0.0f;
-	static int counter = 0;
-	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-
-	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
 	if (ImGui::Button("Add a Directional Light"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 		create_dirlight();
@@ -110,9 +102,6 @@ void Interface::UILoader()
 	if (ImGui::Button("Add a Point Light"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 		create_pointlight();
 
-	ImGui::SameLine();
-	ImGui::Text("counter = %d", counter);
-
 	ImGui::Text("Hello!");
 	ImGui::PushFont(font2);
 	ImGui::Text("Hello!");
@@ -120,12 +109,31 @@ void Interface::UILoader()
 	if (ImGui::CollapsingHeader("Asset"))
 	{
 		static int selected = -1;
-		for (int n = 0; n < 5; n++)
+		for (int n = 0; n <c; n++)
 		{
 			char buf[32];
-			sprintf_s(buf, "Object %d", n);
+			if (mesh[n].name == "")
+			{
+				mesh[n].name = "Object" + n;
+			}
+			sprintf_s(buf, mesh[n].name.c_str(), n);
 			if (ImGui::Selectable(buf, selected == n))
 				selected = n;
+		}
+		for (int n = 0; n < c; n++)
+		{
+			if (selected == n)
+			{
+				ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
+				ImGui::PopFont();
+					ImGui::DragFloat3("Position",glm::value_ptr(modPos[n]), 0.01f, 0.0f, 1.0f);
+					ImGui::DragFloat3("Scale", glm::value_ptr(modScale[n]), 0.01f, 0.0f, 1.0f);
+					if (ImGui::Button("Delete"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+					{
+					}
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+				ImGui::End();
+			}
 		}
 	}
 	if (ImGui::CollapsingHeader("Lights"))
@@ -176,7 +184,6 @@ void Interface::UILoader()
 	}
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
-	
 }
 
 void Interface::setShaderValues(ShaderProgram* shaderProgram)
@@ -277,10 +284,7 @@ void Interface::draw()
 
 void Interface::dir_show_par(int k)
 {
-	ImGui::Begin("Hello None");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::Text("Hello!");
-	ImGui::PushFont(font2);
-	ImGui::Text("Hello!");
+	ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
 	ImGui::PopFont();
 	if (k != -1)
 	{
@@ -296,7 +300,7 @@ void Interface::dir_show_par(int k)
 }
 void Interface::point_show_par(int k)
 {
-	ImGui::Begin("Hello None");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
 	ImGui::Text("Hello!");
 	ImGui::PushFont(font2);
 	ImGui::Text("Hello!");
@@ -315,7 +319,7 @@ void Interface::point_show_par(int k)
 }
 void Interface::spot_show_par(int k)
 {
-	ImGui::Begin("Hello None");                          // Create a window called "Hello, world!" and append into it.
+	ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
 	ImGui::Text("Hello!");
 	ImGui::PushFont(font2);
 	ImGui::Text("Hello!");
@@ -368,4 +372,31 @@ void Interface::create_spotlight()
 	slight_new.outerAngle = 60.0f;
 	slight_new.show = false;
 	slight.push_back(slight_new);
+}
+int Interface::importFile(std::string file[])
+{
+	bool send_file=false;
+	ImGui::Begin("Hello None");                         
+	ImGui::Text("Hello!");
+	ImGui::PushFont(font2);
+	ImGui::Text("Hello!");
+	ImGui::PopFont();
+	
+	static char buf1[64] = "";
+	ImGui::InputText("Object", buf1, 64);
+	
+	static char buf2[64] = "";
+	ImGui::InputText("Texture", buf2, 64);
+
+	file[0] = buf1;
+	file[1] = buf2;
+	if (ImGui::Button("Import"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+		send_file = true;
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::End();
+
+	if (send_file)
+		return 1;
+	else
+		return 0;
 }

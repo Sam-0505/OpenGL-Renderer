@@ -9,6 +9,7 @@
 #include "ImGui/imgui_impl_glfw.h"
 #include "glm/glm.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include "Mesh.h"
 //#include "ImGui/imgui_impl_opengl3.cpp"
 //#include "ImGui/imgui_impl_glfw.cpp"
 
@@ -19,10 +20,11 @@ public:
 	~Interface();
 
 	bool initImGui(GLFWwindow* pWindow);
-	void UILoader();
+	void UILoader(Mesh mesh[], glm::vec3 modPos[], glm::vec3 modScale[], int c);
 	void setShaderValues(ShaderProgram* shaderProgram);
 	GLFWwindow* Window;
 	void draw();
+	int importFile(std::string file[]);
 
 private:
 	struct Dir_light
@@ -64,6 +66,7 @@ private:
 	void create_dirlight();
 	void create_spotlight();
 	void create_pointlight();
+
 	glm::vec3 vec3Convert(ImVec4 var);
 	ImFont* font1;
 	ImFont* font2;

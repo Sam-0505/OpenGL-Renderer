@@ -24,7 +24,7 @@ public:
 
 	bool loadOBJ(const std::string& filename);
 	void draw();
-	
+	std::string name;
 
 private:
 
