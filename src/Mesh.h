@@ -25,14 +25,13 @@ public:
 	bool loadOBJ(const std::string& filename);
 	void draw();
 	std::string name;
+	bool mLoaded;
+	std::vector<Vertex> mVertices;	GLuint mVBO, mVAO;
 
 private:
 
 	void initBuffers();
 	std::vector<std::string> split(std::string vert, std::string del);
-
-	bool mLoaded;
-	std::vector<Vertex> mVertices;	GLuint mVBO, mVAO;
 };
 #endif //MESH_H
 

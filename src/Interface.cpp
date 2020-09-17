@@ -78,8 +78,9 @@ bool Interface::initImGui(GLFWwindow* pWindow)
 	return true;
 }
 
-void Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],int c)
+int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],int c)
 {
+	int del = -1;
 	//ImFont* font1 = io.Fonts->AddFontDefault();
 	//ImFont* font2 = io.Fonts->AddFontFromFileTTF("D:/OpenGL/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
 
@@ -125,11 +126,11 @@ void Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],in
 			if (selected == n)
 			{
 				ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
-				ImGui::PopFont();
 					ImGui::DragFloat3("Position",glm::value_ptr(modPos[n]), 0.01f, 0.0f, 1.0f);
 					ImGui::DragFloat3("Scale", glm::value_ptr(modScale[n]), 0.01f, 0.0f, 1.0f);
 					if (ImGui::Button("Delete"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 					{
+						del = n;
 					}
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 				ImGui::End();
@@ -184,6 +185,7 @@ void Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],in
 	}
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
+	return del;
 }
 
 void Interface::setShaderValues(ShaderProgram* shaderProgram)

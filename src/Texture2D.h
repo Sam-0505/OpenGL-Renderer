@@ -14,9 +14,10 @@ public:
 	bool loadTexture(const string& filename, bool generateMipMaps = true);
 	void bind(GLuint textUnit = 0);
 	void unbind(GLuint textUnit);
+	GLuint mTexture;
 
 private:
-	GLuint mTexture;
+	
 
 };
 #endif // ! TEXTURE2D_H

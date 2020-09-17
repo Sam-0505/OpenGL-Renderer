@@ -85,8 +85,8 @@ int main()
 	mesh[5].loadOBJ("D:/OpenGL/Project1/models/bunny.obj");
 	mesh[0].name="crate";
 	mesh[1].name="woodcrate";
-	mesh[2].name="robot.obj";
-	mesh[3].name="floor.obj";
+	mesh[2].name="robot";
+	mesh[3].name="floor";
 	mesh[4].name="bowling_pin";
 	mesh[5].name="bunny";
 
@@ -121,6 +121,15 @@ int main()
 	modPos[4]=glm::vec3(0.0f, 0.0f, 2.0f);	// pin
 	modPos[5]=glm::vec3(-2.0f, 0.0f, 2.0f);// bunny
 
+		//Model Position
+	glm::vec3 modRot[20];
+	modRot[0] = glm::vec3(0.0f);	// crate1
+	modRot[1] = glm::vec3(0.0f);	// crate2
+	modRot[2] = glm::vec3(0.0f);	// robot
+	modRot[3] = glm::vec3(0.0f);		// floor
+	modRot[4] = glm::vec3(0.0f);	// pin
+	modRot[5] = glm::vec3(0.0f);// bunny
+
 	// Model scale
 	glm::vec3 modScale[20];
 	modScale[0]=glm::vec3(1.0f, 1.0f, 1.0f);	// crate1
@@ -152,6 +161,7 @@ int main()
 
 	while (!glfwWindowShouldClose(pWindow))
 	{
+		int del=-1;
 		if(!show_UI)
 			saveImage();
 
@@ -167,10 +177,26 @@ int main()
 
 		//texture2D1.bind(0);
 
-		if (show_UI)
-			UI.UILoader(mesh,modPos,modScale,c);
+		if (show_UI) //to remove the UI when the image is rendered
+			del=UI.UILoader(mesh,modPos,modScale,c);//del is the index number of the object to remove
 
-		if (showOpen)
+		if (del != -1)
+		{
+			for (int i = del; i < c; i++)
+			{
+				mesh[del].mVAO = mesh[del + 1].mVAO;
+				mesh[del].mVBO = mesh[del + 1].mVBO;
+				mesh[del].name = mesh[del + 1].name;
+				texture2D[del].mTexture = texture2D[del + 1].mTexture;
+				modPos[del] = modPos[del + 1];
+				modScale[del] = modScale[del + 1];
+			}
+			mesh[c].mLoaded = false;
+			texture2D[c].mTexture = 0;
+			c--;
+		}
+
+		if (showOpen)//showOpen is true means a asset has to be imported
 		{
 			std::string file[2];
 			int isImport= UI.importFile(file);
@@ -183,10 +209,10 @@ int main()
 				std::cout << c << std::endl;
 				std::cout << file[1] << std::endl;
 				texture2D[c].loadTexture(file[1], true);
+				modPos[c] = glm::vec3(0.0f, 5.0f, 0.0f);
+				modScale[c] = glm::vec3(1.0f);
 				c++;
 				std::cout << c << std::endl;
-				modPos[6]=glm::vec3(0.0f, 5.0f, 0.0f);
-				modScale[6]=glm::vec3(1.0f);
 				showOpen = false;
 			}
 		}
@@ -242,7 +268,7 @@ int main()
 		lightProgram.setUniform("lightPos", lightPos);
 		lightMesh.draw();
 
-		if (show_UI)
+		if (show_UI) 
 			UI.draw();
 
 		glfwSwapBuffers(pWindow);

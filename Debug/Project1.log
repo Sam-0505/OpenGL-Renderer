@@ -1,26 +1,8 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(453,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  Interface.cpp
-D:\OpenGL\Project1\src\Interface.cpp(19,47): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\OpenGL\Project1\src\Interface.cpp(27,47): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\OpenGL\Project1\src\Interface.cpp(143,32): warning C4474: 'sprintf_s' : too many arguments passed for format string
-D:\OpenGL\Project1\src\Interface.cpp(143,32): message : placeholders and their parameters expect 0 variadic arguments, but 1 were provided
-D:\OpenGL\Project1\src\Interface.cpp(144,21): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(152,33): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(161,49): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(171,17): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(175,22): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(179,22): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(194,20): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(210,20): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(235,20): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(346,52): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\OpenGL\Project1\src\Interface.cpp(357,52): warning C4305: 'argument': truncation from 'double' to 'float'
   Lesson1.cpp
-D:\OpenGL\Project1\src\Lesson1.cpp(407,17): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-D:\OpenGL\Project1\src\Lesson1.cpp(418,13): warning C4101: 'height': unreferenced local variable
-D:\OpenGL\Project1\src\Lesson1.cpp(418,6): warning C4101: 'width': unreferenced local variable
-  Mesh.cpp
-D:\OpenGL\Project1\src\Mesh.cpp(110,23): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Mesh.cpp(133,12): warning C4305: 'return': truncation from 'int' to 'bool'
+D:\OpenGL\Project1\src\Lesson1.cpp(424,17): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL\Project1\src\Lesson1.cpp(435,13): warning C4101: 'height': unreferenced local variable
+D:\OpenGL\Project1\src\Lesson1.cpp(435,6): warning C4101: 'width': unreferenced local variable
+  Texture2D.cpp
   Generating Code...
   Project1.vcxproj -> D:\OpenGL\Project1\.\bin\Project1.exe
