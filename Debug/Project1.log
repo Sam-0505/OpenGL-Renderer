@@ -1,8 +1,16 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(453,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  Lesson1.cpp
-D:\OpenGL\Project1\src\Lesson1.cpp(424,17): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-D:\OpenGL\Project1\src\Lesson1.cpp(435,13): warning C4101: 'height': unreferenced local variable
-D:\OpenGL\Project1\src\Lesson1.cpp(435,6): warning C4101: 'width': unreferenced local variable
-  Texture2D.cpp
-  Generating Code...
+  Interface.cpp
+D:\OpenGL\Project1\src\Interface.cpp(19,47): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\OpenGL\Project1\src\Interface.cpp(27,47): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\OpenGL\Project1\src\Interface.cpp(145,21): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(153,33): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(162,47): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(172,17): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(176,22): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(180,22): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(196,20): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(212,20): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(237,20): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(347,52): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\OpenGL\Project1\src\Interface.cpp(358,52): warning C4305: 'argument': truncation from 'double' to 'float'
   Project1.vcxproj -> D:\OpenGL\Project1\.\bin\Project1.exe

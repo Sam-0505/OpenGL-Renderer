@@ -20,7 +20,7 @@ public:
 	~Interface();
 
 	bool initImGui(GLFWwindow* pWindow);
-	int UILoader(Mesh mesh[], glm::vec3 modPos[], glm::vec3 modScale[], int c);
+	int UILoader(Mesh mesh[], glm::vec3 modPos[], glm::vec3 modRot[], glm::vec3 modScale[], int c);
 	void setShaderValues(ShaderProgram* shaderProgram);
 	GLFWwindow* Window;
 	void draw();

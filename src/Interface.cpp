@@ -78,7 +78,7 @@ bool Interface::initImGui(GLFWwindow* pWindow)
 	return true;
 }
 
-int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],int c)
+int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[], glm::vec3 modRot[],glm::vec3 modScale[],int c)
 {
 	int del = -1;
 	//ImFont* font1 = io.Fonts->AddFontDefault();
@@ -126,8 +126,9 @@ int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],int
 			if (selected == n)
 			{
 				ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
-					ImGui::DragFloat3("Position",glm::value_ptr(modPos[n]), 0.01f, 0.0f, 1.0f);
-					ImGui::DragFloat3("Scale", glm::value_ptr(modScale[n]), 0.01f, 0.0f, 1.0f);
+					ImGui::DragFloat3("Position",glm::value_ptr(modPos[n]), 0.01f, 0.0f, 5.0f);
+					ImGui::DragFloat3("Rotation", glm::value_ptr(modRot[n]), 1.0f, 0.0f, 90.0f);
+					ImGui::DragFloat3("Scale", glm::value_ptr(modScale[n]), 0.01f, 0.0f, 5.0f);
 					if (ImGui::Button("Delete"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 					{
 						del = n;
@@ -141,7 +142,6 @@ int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],int
 	{
 		static int selected = -1;
 		char buf[32];
-		sprintf_s(buf, "Spot Light", 0);
 		for (int n = 0; n < dlight.size(); n++)
 		{
 			sprintf_s(buf, "Directional Light %d", n);
@@ -159,9 +159,9 @@ int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[],glm::vec3 modScale[],int
 			}
 		}
 
-		for (int n = dlight.size() + plight.size(); n < dlight.size() + plight.size() + slight.size(); n++)
+		for (int n = dlight.size()+plight.size(); n < dlight.size()+plight.size()+slight.size(); n++)
 		{
-			sprintf_s(buf, "Spot Light %d", n- dlight.size() + plight.size());
+			sprintf_s(buf, "Spot Light %d", n- dlight.size()-plight.size());
 			if (ImGui::Selectable(buf, selected == n))
 			{
 				selected = n;
@@ -287,7 +287,6 @@ void Interface::draw()
 void Interface::dir_show_par(int k)
 {
 	ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::PopFont();
 	if (k != -1)
 	{
 		ImGui::DragFloat3("Direction", glm::value_ptr(dlight[k].ddir), 0.01f, 0.0f, 1.0f);

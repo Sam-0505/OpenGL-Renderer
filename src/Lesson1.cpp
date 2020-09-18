@@ -123,7 +123,7 @@ int main()
 
 		//Model Position
 	glm::vec3 modRot[20];
-	modRot[0] = glm::vec3(0.0f);	// crate1
+	modRot[0] = glm::vec3(30.0f);	// crate1
 	modRot[1] = glm::vec3(0.0f);	// crate2
 	modRot[2] = glm::vec3(0.0f);	// robot
 	modRot[3] = glm::vec3(0.0f);		// floor
@@ -178,7 +178,7 @@ int main()
 		//texture2D1.bind(0);
 
 		if (show_UI) //to remove the UI when the image is rendered
-			del=UI.UILoader(mesh,modPos,modScale,c);//del is the index number of the object to remove
+			del=UI.UILoader(mesh,modPos,modRot,modScale,c);//del is the index number of the object to remove
 
 		if (del != -1)
 		{
@@ -244,7 +244,7 @@ int main()
 
 		for (int i = 0; i < c; i++)
 		{
-			model = glm::translate(glm::mat4(), modPos[i]) * glm::scale(glm::mat4(), modScale[i]);
+			model = glm::translate(glm::mat4(), modPos[i]) *glm::rotate(glm::mat4(),glm::radians(modRot[i].x),glm::vec3(1.0f,0.0f,0.0f))* glm::rotate(glm::mat4(), glm::radians(modRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(), glm::radians(modRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f)) *glm::scale(glm::mat4(), modScale[i]);
 			shaderProgram.setUniform("model", model);
 
 			shaderProgram.setUniform("material.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
