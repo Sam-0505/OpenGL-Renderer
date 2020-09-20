@@ -198,7 +198,7 @@ int main()
 
 		if (showOpen)//showOpen is true means a asset has to be imported
 		{
-			std::string file[2];
+			std::string file[3];
 			int isImport= UI.importFile(file);
 			if (isImport)
 			{
@@ -206,6 +206,7 @@ int main()
 				std::cout << c << std::endl;
 				std::cout << file[0] << std::endl;
 				mesh[c].loadOBJ(file[0]);
+				mesh[c].name=file[2];
 				std::cout << c << std::endl;
 				std::cout << file[1] << std::endl;
 				texture2D[c].loadTexture(file[1], true);

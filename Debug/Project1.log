@@ -2,15 +2,15 @@
   Interface.cpp
 D:\OpenGL\Project1\src\Interface.cpp(19,47): warning C4305: 'argument': truncation from 'double' to 'float'
 D:\OpenGL\Project1\src\Interface.cpp(27,47): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\OpenGL\Project1\src\Interface.cpp(145,21): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(153,33): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(162,47): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(172,17): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(141,21): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(149,33): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(158,47): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(168,17): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(172,22): warning C4018: '<': signed/unsigned mismatch
 D:\OpenGL\Project1\src\Interface.cpp(176,22): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(180,22): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(196,20): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(212,20): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(237,20): warning C4018: '<': signed/unsigned mismatch
-D:\OpenGL\Project1\src\Interface.cpp(347,52): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\OpenGL\Project1\src\Interface.cpp(358,52): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\OpenGL\Project1\src\Interface.cpp(192,20): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(208,20): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(233,20): warning C4018: '<': signed/unsigned mismatch
+D:\OpenGL\Project1\src\Interface.cpp(343,52): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\OpenGL\Project1\src\Interface.cpp(354,52): warning C4305: 'argument': truncation from 'double' to 'float'
   Project1.vcxproj -> D:\OpenGL\Project1\.\bin\Project1.exe

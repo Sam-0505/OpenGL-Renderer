@@ -70,6 +70,7 @@ private:
 	glm::vec3 vec3Convert(ImVec4 var);
 	ImFont* font1;
 	ImFont* font2;
+	char buf1[64], buf2[64], buf3[64];
 
 	const char* glsl_version = "#version 330 core";
 };

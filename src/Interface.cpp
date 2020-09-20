@@ -90,11 +90,7 @@ int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[], glm::vec3 modRot[],glm:
 	ImGui::NewFrame();
 
 	ImGui::Begin("My First Tool");
-	bool show_demo_window = true;
 	bool show_another_window = true;
-	ImVec4 clear_color = ImVec4(1.0f,1.0f,1.0f,1.0f);
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	ImGui::ShowDemoWindow(&show_demo_window);
 
 	if (ImGui::Button("Add a Directional Light"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 		create_dirlight();
@@ -377,20 +373,22 @@ void Interface::create_spotlight()
 int Interface::importFile(std::string file[])
 {
 	bool send_file=false;
-	ImGui::Begin("Hello None");                         
-	ImGui::Text("Hello!");
-	ImGui::PushFont(font2);
-	ImGui::Text("Hello!");
-	ImGui::PopFont();
+	ImGui::Begin("Import OBJ");                         
 	
-	static char buf1[64] = "";
+	
+	//static char buf1[64] = "";
 	ImGui::InputText("Object", buf1, 64);
 	
-	static char buf2[64] = "";
-	ImGui::InputText("Texture", buf2, 64);
+	//static char buf2[64] = "";
+	ImGui::InputText("Diffuse Texture", buf2, 64);
+
+	//static char buf3[64] = "";
+	ImGui::InputText("Name", buf3, 64);
+	
 
 	file[0] = buf1;
 	file[1] = buf2;
+	file[2] = buf3;
 	if (ImGui::Button("Import"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 		send_file = true;
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
