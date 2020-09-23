@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <vector>
 #define	GLEW_STATIC
 #include "GL/glew.h"// Important - this header must come before glfw3 header
@@ -440,8 +441,22 @@ void glfw_scrollInput(GLFWwindow* window, double Xoff, double Yoff)
 	//fpsCamera.setFOV((float)fov);
 }
 
-void saveImage() 
+void saveImage() //save the current vieww as png image
 {
+	int k = 0;
+	std::string filename;
+	while (true)
+	{
+		filename = "../Downloads/image" + std::to_string(k) + ".png";
+		std::ifstream isfile;
+		isfile.open(filename);
+		if (!isfile)
+		{
+			std::cout << "File can't open" << std::endl;
+			break;
+		}
+		k++;
+	}
 	int width, height;
 	GLsizei nrChannels = 3;
 	GLsizei stride = nrChannels * pwidth;
@@ -452,7 +467,7 @@ void saveImage()
 	glReadBuffer(GL_FRONT);
 	glReadPixels(0, 0, pwidth, pheight, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
 	stbi_flip_vertically_on_write(true);
-	const char* filepath = "D:/OpenGL/image.png";
+	const char* filepath = filename.c_str();
 	stbi_write_png(filepath, pwidth, pheight, nrChannels, buffer.data(), stride);
 }
 
