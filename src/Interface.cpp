@@ -89,7 +89,7 @@ int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[], glm::vec3 modRot[],glm:
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	ImGui::Begin("My First Tool");
+	ImGui::Begin("Object List");
 	bool show_another_window = true;
 
 	if (ImGui::Button("Add a Directional Light"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
@@ -121,7 +121,7 @@ int Interface::UILoader(Mesh mesh[], glm::vec3 modPos[], glm::vec3 modRot[],glm:
 		{
 			if (selected == n)
 			{
-				ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
+				ImGui::Begin("Asset Parameters");                          // Create a window called "Hello, world!" and append into it.
 					ImGui::DragFloat3("Position",glm::value_ptr(modPos[n]), 0.01f, 0.0f, 5.0f);
 					ImGui::DragFloat3("Rotation", glm::value_ptr(modRot[n]), 1.0f, 0.0f, 90.0f);
 					ImGui::DragFloat3("Scale", glm::value_ptr(modScale[n]), 0.01f, 0.0f, 5.0f);

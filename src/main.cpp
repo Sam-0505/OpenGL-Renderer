@@ -110,9 +110,6 @@ int main()
 	texture2D[4].loadTexture("D:/OpenGL/Project1/textures/AMF.tga", true);
 	texture2D[5].loadTexture("D:/OpenGL/Project1/textures/bunny_diffuse.jpg", true);
 
-	Mesh lightMesh;
-	lightMesh.loadOBJ("D:/OpenGL/Project1/models/crate.obj");
-
 	//Model Position
 	glm::vec3 modPos[20];
 	modPos[0]=glm::vec3(-2.5f, 1.0f, 0.0f);	// crate1
@@ -140,25 +137,11 @@ int main()
 	modScale[4]=glm::vec3(0.1f, 0.1f, 0.1f);	// pin
 	modScale[5]=glm::vec3(0.7f, 0.7f, 0.7f);	// bunny
 
-
-	ShaderProgram lightProgram;
-	lightProgram.loadShaders("D:/OpenGL/Project1/shaders/light.vert", "D:/OpenGL/Project1/shaders/light.frag");
-
 	ShaderProgram shaderProgram;
 	shaderProgram.loadShaders("D:/OpenGL/Project1/shaders/basic.vert", "D:/OpenGL/Project1/shaders/basic.frag");
 
 	double lastTime = glfwGetTime();
-	float cubeAngle = 0.0f;
-	float lightAngle = 0.0f;
-
-	glm::vec3 lightPos = glm::vec3(0.0f, 1.0f, 10.0f);
-	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 viewPos = orbitCamera.getViewPos();
-
-	// Our state
-	bool show_demo_window = true;
-	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	while (!glfwWindowShouldClose(pWindow))
 	{
@@ -259,17 +242,6 @@ int main()
 			texture2D[i].unbind(0);
 		}
 
-		lightAngle += (float)deltaTime * 50.0f;
-		//lightPos.x = 8.0f * sin(glm::radians(lightAngle));
-		model = glm::translate(glm::mat4(), lightPos);
-		lightProgram.use();
-		lightProgram.setUniform("model", model);
-		lightProgram.setUniform("lightColor", lightColor);
-		lightProgram.setUniform("view", view);
-		lightProgram.setUniform("projection", projection);
-		lightProgram.setUniform("lightPos", lightPos);
-		lightMesh.draw();
-
 		if (show_UI) 
 			UI.draw();
 
@@ -332,7 +304,7 @@ bool initOpenGL()
 	// Hides and grabs cursor, unlimited movement
 	glfwSetCursorPos(pWindow, pwidth / 2.0, pheight / 2.0);
 
-	glClearColor(0.23f, 0.38f, 0.47f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	glViewport(0, 0, pwidth, pheight);
 
