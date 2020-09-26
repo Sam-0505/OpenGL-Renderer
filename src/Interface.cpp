@@ -317,10 +317,6 @@ void Interface::point_show_par(int k)
 void Interface::spot_show_par(int k)
 {
 	ImGui::Begin("Light Parameters");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::Text("Hello!");
-	ImGui::PushFont(font2);
-	ImGui::Text("Hello!");
-	ImGui::PopFont();
 	if (k != -1)
 	{
 		ImGui::DragFloat3("Position", glm::value_ptr(slight[k].spos), 0.1f, 0.0f, 10.0f);
@@ -329,7 +325,7 @@ void Interface::spot_show_par(int k)
 		ImGui::ColorEdit3("Ambient", (float*)&slight[k].sambient);
 		ImGui::DragFloat3("Direction", glm::value_ptr(slight[k].sdir), 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("InnerAngle", &(slight[k].innerAngle), 5.0f, 0.0f, 180.0f, "%.1f");
-		ImGui::DragFloat("InnerAngle", &(slight[k].outerAngle), 5.0f, slight[k].innerAngle, 180.0f, "%.1f");
+		ImGui::DragFloat("OuterAngle", &(slight[k].outerAngle), 5.0f, slight[k].innerAngle, 180.0f, "%.1f");
 	}
 	if (ImGui::Button("Delete"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 		slight.erase(slight.begin() + k);
