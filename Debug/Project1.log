@@ -1,6 +1,6 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(453,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
   main.cpp
-D:\OpenGL\Project1\src\main.cpp(408,17): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-D:\OpenGL\Project1\src\main.cpp(433,13): warning C4101: 'height': unreferenced local variable
-D:\OpenGL\Project1\src\main.cpp(433,6): warning C4101: 'width': unreferenced local variable
-  Project1.vcxproj -> D:\OpenGL\Project1\.\bin\Project1.exe
+D:\Computer Graphics\Project1\src\main.cpp(408,17): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+D:\Computer Graphics\Project1\src\main.cpp(433,13): warning C4101: 'height': unreferenced local variable
+D:\Computer Graphics\Project1\src\main.cpp(433,6): warning C4101: 'width': unreferenced local variable
+  Project1.vcxproj -> D:\Computer Graphics\Project1\.\bin\Project1.exe

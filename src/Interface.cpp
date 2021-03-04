@@ -65,7 +65,7 @@ bool Interface::initImGui(GLFWwindow* pWindow)
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 	font1 = io.Fonts->AddFontDefault();
-	font2 = io.Fonts->AddFontFromFileTTF("D:/OpenGL/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
+	font2 = io.Fonts->AddFontFromFileTTF("D:/Computer Graphics/Project1/common/fonts/segoe-ui-4-cufonfonts/Segoe UI Bold.ttf", 16.0f);
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();

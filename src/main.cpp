@@ -78,12 +78,12 @@ int main()
 	*/
 	int c = 6;
 	Mesh mesh[20];
-	mesh[0].loadOBJ("D:/OpenGL/Project1/models/crate.obj");
-	mesh[1].loadOBJ("D:/OpenGL/Project1/models/woodcrate.obj");
-	mesh[2].loadOBJ("D:/OpenGL/Project1/models/robot.obj");
-	mesh[3].loadOBJ("D:/OpenGL/Project1/models/floor.obj");
-	mesh[4].loadOBJ("D:/OpenGL/Project1/models/bowling_pin.obj");
-	mesh[5].loadOBJ("D:/OpenGL/Project1/models/bunny.obj");
+	mesh[0].loadOBJ("D:/Computer Graphics/Project1/models/crate.obj"); 
+	mesh[1].loadOBJ("D:/Computer Graphics/Project1/models/woodcrate.obj");
+	mesh[2].loadOBJ("D:/Computer Graphics/Project1/models/robot.obj");
+	mesh[3].loadOBJ("D:/Computer Graphics/Project1/models/floor.obj");
+	mesh[4].loadOBJ("D:/Computer Graphics/Project1/models/bowling_pin.obj");
+	mesh[5].loadOBJ("D:/Computer Graphics/Project1/models/bunny.obj");
 	mesh[0].name="crate";
 	mesh[1].name="woodcrate";
 	mesh[2].name="robot";
@@ -103,12 +103,12 @@ int main()
 	//texture2D.push_back(texture6);
 	*/
 	Texture2D texture2D[20];
-	texture2D[0].loadTexture("D:/OpenGL/Project1/textures/crate.jpg", true);
-	texture2D[1].loadTexture("D:/OpenGL/Project1/textures/woodcrate_diffuse.jpg", true);
-	texture2D[2].loadTexture("D:/OpenGL/Project1/textures/robot_diffuse.jpg", true);
-	texture2D[3].loadTexture("D:/OpenGL/Project1/textures/tile_floor.jpg", true);
-	texture2D[4].loadTexture("D:/OpenGL/Project1/textures/AMF.tga", true);
-	texture2D[5].loadTexture("D:/OpenGL/Project1/textures/bunny_diffuse.jpg", true);
+	texture2D[0].loadTexture("D:/Computer Graphics/Project1/textures/crate.jpg", true);
+	texture2D[1].loadTexture("D:/Computer Graphics/Project1/textures/woodcrate_diffuse.jpg", true);
+	texture2D[2].loadTexture("D:/Computer Graphics/Project1/textures/robot_diffuse.jpg", true);
+	texture2D[3].loadTexture("D:/Computer Graphics/Project1/textures/tile_floor.jpg", true);
+	texture2D[4].loadTexture("D:/Computer Graphics/Project1/textures/AMF.tga", true);
+	texture2D[5].loadTexture("D:/Computer Graphics/Project1/textures/bunny_diffuse.jpg", true);
 
 	//Model Position
 	glm::vec3 modPos[20];
@@ -138,7 +138,7 @@ int main()
 	modScale[5]=glm::vec3(0.7f, 0.7f, 0.7f);	// bunny
 
 	ShaderProgram shaderProgram;
-	shaderProgram.loadShaders("D:/OpenGL/Project1/shaders/basic.vert", "D:/OpenGL/Project1/shaders/basic.frag");
+	shaderProgram.loadShaders("D:/Computer Graphics/Project1/shaders/basic.vert", "D:/Computer Graphics/Project1/shaders/basic.frag");
 
 	double lastTime = glfwGetTime();
 	glm::vec3 viewPos = orbitCamera.getViewPos();
