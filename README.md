@@ -1,6 +1,10 @@
 # OpenGL-Renderer
 A lighting and rendering aplication to import OBJ's with diffuse textures and set up different spot lights, directional lights and point lights to setup 3D scenes. This is a 
-personal project based on OpenGL. 
+personal project based on OpenGL.
+
+# Demo
+https://github.com/user-attachments/assets/3f71f99c-c34b-4e1d-85e9-d60e1737b455
+
 # How to use
 ![](images/Basic_layout.png)
 
@@ -18,4 +22,8 @@ personal project based on OpenGL.
 
 ![](images/bunny_there.png) 
 
-6)Click 'S' on the keyboard to save a render of the current view. 
+6)Click 'S' on the keyboard to save a render of the current view.
+
+
+
+
